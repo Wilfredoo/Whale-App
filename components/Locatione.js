@@ -1,11 +1,13 @@
 
 import React, { Component } from 'react';
-import { Platform, Text, View, StyleSheet, Button, Linking,AppState } from 'react-native';
+import { Platform, Text, View, Button, Linking,AppState } from 'react-native';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import Modal from 'react-native-modal'
 import * as IntentLauncher from 'expo-intent-launcher';
+import Map from "./Map.js";
+
 
 export default class Locatione extends Component {
   state = {
@@ -16,7 +18,7 @@ export default class Locatione extends Component {
 
   };
 
-  componentWillUnmount() {
+  componentDidMount() {
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
@@ -56,6 +58,7 @@ export default class Locatione extends Component {
 
     let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation});
     this.setState({ location });
+    console.log("log this pls", this.state)
   } catch (error) {
     let status = Location.getProviderStatusAsync();
 
@@ -87,48 +90,8 @@ this.setState({openSetting:false})
     }
 
     return (
-      <View style={styles.container}>
-        <Modal
-          onModalHide={this.state.openSetting ? this.openSetting : undefined}
-          isVisible={this.state.isLocationModalVisible}
-        >
-          <View
-            style={{
-              height: 300,
-              width: 300,
-              backgroundColor: 'white',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Button
-              onPress={() =>
-                this.setState({
-                  isLocationModalVisible: false,
-                  openSetting: true
-                })
-              }
-              title="Enable Location Services"
-            />
-          </View>
-        </Modal>
-        <Text style={styles.paragraph}>{text}</Text>
-      </View>
+<Map locatione={this.state}/>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#ecf0f1'
-  },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    textAlign: 'center'
-  }
-});

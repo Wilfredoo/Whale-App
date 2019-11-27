@@ -2,7 +2,7 @@ import React from "react";
 import MapView from "react-native-maps";
 import {Marker} from "react-native-maps";
 import firebase from "firebase";
-
+// import * as "mapstyle" from "/mapstyle.json"
 
 import {
   Button,
@@ -28,6 +28,10 @@ let markers = [
 
 export default class Map extends React.Component {
 
+
+componentWillMount() {
+  console.log("i want locatione here as props", this.props)
+}
 
   sendLocation() {
     console.log("sending location log")
@@ -116,6 +120,8 @@ const styles = StyleSheet.create({
   }
 
 });
+
+
 
 let mapStyle = [
   {
