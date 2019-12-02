@@ -5,15 +5,14 @@ import firebase from "firebase";
 
 export default class Auth extends React.Component {
   onSignIn = googleUser => {
-    console.log(googleUser);
+    // console.warn("this gets called", googleUser);
+    console.log("this gets called", googleUser);
 
-    // We need to register an Observer on Firebase Auth to make sure auth is initialized.
     var unsubscribe = firebase.auth().onAuthStateChanged(
       function(firebaseUser) {
         unsubscribe();
-        // Check if we are already signed-in Firebase with the correct user.
         if (!this.isUserEqual(googleUser, firebaseUser)) {
-          // console.warn("his this what is happening?")
+          // console.log("his this what is happening?")
           // Build Firebase credential with the Google ID token.
           var credential = firebase.auth.GoogleAuthProvider.credential(
             googleUser.idToken,
@@ -21,10 +20,8 @@ export default class Auth extends React.Component {
 
             // googleUser.getAuthResponse().user.id
           );
-          // Sign in with credential from the Google user.
           firebase
             .auth()
-            .signInWithPhoneNumber("+491777898706")
             .signInWithCredential(credential)
             .then(function(result) {
               if (result.additionalUserInfo.isNewUser) {
@@ -40,10 +37,10 @@ export default class Auth extends React.Component {
                     created_at: Date.now()
                   })
                   .then(() => {
-                    // console.warn("got here?")
+                    console.log("got here?");
                   });
               } else {
-                console.warn("how about here");
+                console.log("how about here");
                 firebase
                   .database()
                   .ref("/users/" + result.user.uid)
@@ -53,18 +50,14 @@ export default class Auth extends React.Component {
               }
             })
             .catch(function(error) {
-              // console.log("oh no, errors are happening", error)
-              // Handle Errors here.
+              console.log("oh no, errors are happening", error);
               var errorCode = error.code;
               var errorMessage = error.message;
-              // The email of the user's account used.
               var email = error.email;
-              // The firebase.auth.AuthCredential type that was used.
               var credential = error.credential;
-              // ...
             });
         } else {
-          // console.warn('User already signed-in Firebase.');
+          console.log("User already signed-in Firebase.");
         }
       }.bind(this)
     );
@@ -79,7 +72,6 @@ export default class Auth extends React.Component {
             firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
           providerData[i].uid === googleUser.getBasicProfile().getId()
         ) {
-          // We don't need to reauth the Firebase connection.
           return true;
         }
       }
@@ -88,8 +80,9 @@ export default class Auth extends React.Component {
   };
 
   signInWithGoogleAsync = async () => {
-    console.warn("sign in before all");
+    console.log("sign in before all");
     try {
+      console.log("try me");
       const result = await Google.logInAsync({
         androidClientId:
           "353993328565-stdu06g46sji65o8i2ovu5npcga8aj8k.apps.googleusercontent.com",
@@ -97,25 +90,28 @@ export default class Auth extends React.Component {
           "353993328565-cfouoqpnlrkdiefvlig301vglbl523kf.apps.googleusercontent.com",
         scopes: ["profile", "email"]
       });
+      console.log("omg", result);
       console.warn("omg", result);
 
       if (result.type === "success") {
-        console.warn("success auth", result);
+        console.log("success auth", result);
         this.onSignIn(result);
-        this.props.navigation.navigate("Main");
+        this.props.navigation.navigate("Map");
         return result.accessToken;
       } else {
-        // console.warn("canceled auth")
+        console.log("canceled auth");
 
         return { cancelled: true };
       }
     } catch (e) {
+      console.log("error auth", e);
       console.warn("error auth", e);
 
       return { error: true };
     }
   };
   render() {
+    console.log("trying to render auth");
     return (
       <View style={styles.container}>
         <Text>Whale App</Text>

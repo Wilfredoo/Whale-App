@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import firebase from 'firebase';
+import React, { Component } from "react";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import firebase from "firebase";
 
 class Loading extends Component {
   componentDidMount() {
@@ -8,17 +8,17 @@ class Loading extends Component {
   }
 
   checkIfLoggedIn = () => {
-    console.warn("checking if logged in")
-    firebase.auth().onAuthStateChanged(
-      user => {
-        console.warn('AUTH STATE CHANGED CALLED ')
-        if (user) {
-          this.props.navigation.navigate('Main');
-        } else {
-          this.props.navigation.navigate('Auth');
-        }
+    console.log("checking if logged in function called");
+    firebase.auth().onAuthStateChanged(user => {
+      console.log("AUTH STATE CHANGED CALLED ", user);
+      if (user) {
+        console.log("there is indeed a user");
+        this.props.navigation.navigate("Locatione");
+      } else {
+        console.log("go authenticate");
+        this.props.navigation.navigate("Auth");
       }
-    );
+    });
   };
 
   render() {
@@ -35,7 +35,7 @@ export default Loading;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    alignItems: "center",
+    justifyContent: "center"
   }
 });

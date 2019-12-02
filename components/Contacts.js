@@ -28,19 +28,25 @@ const filterData = contacts => {
     }
     let phoneNumbers = contact.phoneNumbers
       .map(phoneNumber => {
-        return { phoneNumber, parsedPhoneNumber: parsePhoneNumberFromString(phoneNumber.number, "DE") }
+        return {
+          phoneNumber,
+          parsedPhoneNumber: parsePhoneNumberFromString(
+            phoneNumber.number,
+            "DE"
+          )
+        };
       })
-      .filter(({phoneNumber, parsedPhoneNumber}) => {
+      .filter(({ phoneNumber, parsedPhoneNumber }) => {
         if (!parsedPhoneNumber) {
           return false;
         }
         return true;
       })
-      .map(({parsedPhoneNumber}) => {
+      .map(({ parsedPhoneNumber }) => {
         return parsedPhoneNumber.number;
       });
 
-    return { ...contact, phoneNumbers:uniqueItems(phoneNumbers) };
+    return { ...contact, phoneNumbers: uniqueItems(phoneNumbers) };
   });
 };
 
