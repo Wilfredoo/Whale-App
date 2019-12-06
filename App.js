@@ -26,7 +26,7 @@ const AppNavigator = createStackNavigator(
     Contactos: Contactos
   },
   {
-    initialRouteName: "Locatione"
+    initialRouteName: "Loading"
   }
 );
 
@@ -43,11 +43,11 @@ const TabNavigator = createBottomTabNavigator(
   }
 );
 
-export default function App() {
-  return <AppContainer />;
-}
+// export default function App() {
+//   return <AppContainer />;
+// }
 
-//   export default createAppContainer(TabNavigator);
+export default createAppContainer(TabNavigator);
 
 const styles = StyleSheet.create({
   container: {

@@ -15,7 +15,10 @@ import {
   TextInput,
   StatusBar
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 let user;
+
+let last12hours = new Date().getTime() - 12 * 3600 * 1000;
 
 let markers = [
   {
@@ -33,17 +36,21 @@ export default class Map extends React.Component {
   }
 
   async componentDidMount() {
+    this.currentUser = await firebase.auth().currentUser;
+    user = this.currentUser.displayName;
     this.readLocations();
-    // this.currentUser = await firebase.auth().currentUser;
-    // user = this.currentUser.displayName;
+    // console.warn("user u there", this.currentUser);
   }
 
   sendLocation = () => {
-    console.log("sending location log", this.props);
+    // console.log("sending location log", this.props);
     firebase
       .database()
-      .ref("/locations/")
-      .push({
+      .ref("/locations")
+      .child(this.currentUser.uid)
+      .child(Date.now())
+      .set({
+        uid: this.currentUser.uid,
         user: user,
         latitude: this.props.location.coords.latitude,
         longitude: this.props.location.coords.longitude,
@@ -52,16 +59,34 @@ export default class Map extends React.Component {
   };
 
   readLocations = () => {
-    console.log("readlocations called");
-    let locations = firebase.database().ref("/locations/");
+    // console.log("last 12 hours", last12hours);
+    // console.warn("readlocations called");
+    allLocations = [];
+    let locations = firebase
+      .database()
+      .ref("/locations")
+      .child(this.currentUser.uid)
+      .orderByChild("created_at")
+      .startAt(last12hours);
+
     locations.on("value", snapshot => {
+      // console.log("snap snap it", snapshot);
       snapshot.forEach(thing => {
-        console.log("thingy", thing.val().latitude);
+        // console.log("thing", thing.val().uid);
+        // console.log("thing");
+        oneLocation = [];
+        oneLocation.push(
+          thing.val().uid,
+          thing.val().latitude,
+          thing.val().longitude,
+          thing.val().user
+        );
+        allLocations.push(oneLocation);
+        // console.warn(allLocations);
       });
-      this.setState({ snapshot: snapshot }, () => {
-        console.log("show me show me", this.state);
+      this.setState({ locations: allLocations }, () => {
+        // console.log("show me show me", this.state.locations);
       });
-      // console.log("show me something", snapshot)
     });
   };
 
@@ -81,32 +106,67 @@ export default class Map extends React.Component {
           style={styles.mapStyle}
         >
           <MapView.UrlTile urlTemplate="https://maps.googleapis.com/maps/api/staticmap?key=YOUR_API_KEY&center=52.5281715285354,13.413875306884835&zoom=15&format=png&maptype=roadmap&style=element:geometry%7Ccolor:0x1d2c4d&style=element:labels.text.fill%7Ccolor:0x8ec3b9&style=element:labels.text.stroke%7Ccolor:0x1a3646&style=feature:administrative.country%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:administrative.land_parcel%7Cvisibility:off&style=feature:administrative.land_parcel%7Celement:labels.text.fill%7Ccolor:0x64779e&style=feature:administrative.neighborhood%7Cvisibility:off&style=feature:administrative.province%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:landscape.man_made%7Celement:geometry.stroke%7Ccolor:0x334e87&style=feature:landscape.natural%7Celement:geometry%7Ccolor:0x023e58&style=feature:poi%7Celement:geometry%7Ccolor:0x283d6a&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x6f9ba5&style=feature:poi%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:poi.business%7Cvisibility:off&style=feature:poi.park%7Celement:geometry.fill%7Ccolor:0x023e58&style=feature:poi.park%7Celement:labels.text%7Cvisibility:off&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x3C7680&style=feature:road%7Celement:geometry%7Ccolor:0x304a7d&style=feature:road%7Celement:labels%7Cvisibility:off&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:road%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:road.arterial%7Celement:labels%7Cvisibility:off&style=feature:road.highway%7Celement:geometry%7Ccolor:0x2c6675&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x255763&style=feature:road.highway%7Celement:labels%7Cvisibility:off&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0xb0d5ce&style=feature:road.highway%7Celement:labels.text.stroke%7Ccolor:0x023e58&style=feature:road.local%7Cvisibility:off&style=feature:transit%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:transit%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:transit.line%7Celement:geometry.fill%7Ccolor:0x283d6a&style=feature:transit.station%7Celement:geometry%7Ccolor:0x3a4762&style=feature:water%7Celement:geometry%7Ccolor:0x0e1626&style=feature:water%7Celement:labels.text%7Cvisibility:off&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x4e6d70&size=480x360" />
-          <Marker
+          {this.state.locations &&
+            this.state.locations
+              .filter(data => {
+                // console.log("data in filter", data);
+                // console.log("current user uid", this.currentUser.uid);
+                return data[0] === this.currentUser.uid;
+              })
+              .map(data => {
+                // console.log("give it to me", data);
+                return (
+                  <Marker
+                    coordinate={{
+                      latitude: data[1],
+                      longitude: data[2]
+                    }}
+                    title={data[3]}
+                  >
+                    <Image
+                      source={require("../assets/icon.png")}
+                      style={{ width: 40, height: 40 }}
+                      resizeMode="contain"
+                    />
+                  </Marker>
+                );
+              })}
+          <StatusBar
+            barStyle="dark-content"
+            hidden={false}
+            backgroundColor="#00BCD4"
+            translucent={false}
+            networkActivityIndicatorVisible={true}
+          />
+          {/* <Marker
             coordinate={{ latitude: 52.78825, longitude: 13.4324 }}
             title="This should be me"
             description="Some description"
           >
-            <StatusBar
-              barStyle="dark-content"
-              hidden={false}
-              backgroundColor="#00BCD4"
-              translucent={false}
-              networkActivityIndicatorVisible={true}
-            />
+           
             <Image
               source={require("../assets/icon.png")}
-              style={{ width: 46, height: 48 }}
+              style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />
-          </Marker>
+          </Marker> */}
         </MapView>
+
         <MapView.Callout>
-          <View style={styles.callout}>
-            <Image
-              // style={{width: 66, height: 58}}
-              source={{ uri: "../assets/icon.png" }}
-            ></Image>
-            <Button title="Send Sonar" onPress={this.sendLocation} />
+          <View style={styles.calloutView}>
+            <TouchableOpacity onPress={this.sendLocation}>
+              <Image
+                source={require("../assets/button.png")}
+                style={styles.image}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            {/* <Button
+            style={{ marginTop: 46 }}
+            title="Send Sonar"
+            onPress={this.sendLocation}
+          /> */}
           </View>
         </MapView.Callout>
       </View>
@@ -119,16 +179,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "flex-end"
   },
   mapStyle: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
   },
   calloutView: {
-    marginLeft: "30%",
-    marginRight: "30%",
-    marginTop: 20
+    marginBottom: "5%"
+  },
+  image: {
+    height: 100
   }
 });
 

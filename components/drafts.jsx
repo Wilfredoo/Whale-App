@@ -1,12 +1,12 @@
-{
-    //    {this.state.locations.markers.map(data => {
-    // return (
-    //   <div>
-    //     <Marker 
-    //     coordinate={{latitude: data.latitude, longitude: data.longitude}}
-    //     title={data.name}
-    //     >
-    //   </div>
-    // )
-    //           } 
-    // }
+
+       {this.state.snapshot.val().map(data => {
+    return (
+      <div>
+        <Marker 
+        coordinate={{latitude: data.val().latitude, longitude: data.val().longitude}}
+        title={data.name}
+        >
+      </div>
+    )
+              } )
+    }

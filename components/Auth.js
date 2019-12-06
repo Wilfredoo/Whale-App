@@ -37,10 +37,10 @@ export default class Auth extends React.Component {
                     created_at: Date.now()
                   })
                   .then(() => {
-                    console.log("got here?");
+                    // console.log("got here?");
                   });
               } else {
-                console.log("how about here");
+                // console.log("how about here");
                 firebase
                   .database()
                   .ref("/users/" + result.user.uid)
@@ -57,7 +57,7 @@ export default class Auth extends React.Component {
               var credential = error.credential;
             });
         } else {
-          console.log("User already signed-in Firebase.");
+          // console.log("User already signed-in Firebase.");
         }
       }.bind(this)
     );
@@ -80,9 +80,9 @@ export default class Auth extends React.Component {
   };
 
   signInWithGoogleAsync = async () => {
-    console.log("sign in before all");
+    // console.log("sign in before all");
     try {
-      console.log("try me");
+      // console.log("try me");
       const result = await Google.logInAsync({
         androidClientId:
           "353993328565-stdu06g46sji65o8i2ovu5npcga8aj8k.apps.googleusercontent.com",
@@ -90,11 +90,11 @@ export default class Auth extends React.Component {
           "353993328565-cfouoqpnlrkdiefvlig301vglbl523kf.apps.googleusercontent.com",
         scopes: ["profile", "email"]
       });
-      console.log("omg", result);
-      console.warn("omg", result);
+      // console.log("omg", result);
+      // console.warn("omg", result);
 
       if (result.type === "success") {
-        console.log("success auth", result);
+        // console.log("success auth", result);
         this.onSignIn(result);
         this.props.navigation.navigate("Map");
         return result.accessToken;
@@ -111,7 +111,7 @@ export default class Auth extends React.Component {
     }
   };
   render() {
-    console.log("trying to render auth");
+    // console.log("trying to render auth");
     return (
       <View style={styles.container}>
         <Text>Whale App</Text>
