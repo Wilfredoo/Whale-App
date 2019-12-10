@@ -36,14 +36,15 @@ export default class Map extends React.Component {
   }
 
   async componentDidMount() {
+    console.log("map is triggering");
     this.currentUser = await firebase.auth().currentUser;
     user = this.currentUser.displayName;
     this.readLocations();
-    // console.warn("user u there", this.currentUser);
+    // console.log("user u there in Map.js", this.currentUser);
   }
 
   sendLocation = () => {
-    // console.log("sending location log", this.props);
+    console.warn("sending location log", this.props);
     firebase
       .database()
       .ref("/locations")
@@ -59,8 +60,6 @@ export default class Map extends React.Component {
   };
 
   readLocations = () => {
-    // console.log("last 12 hours", last12hours);
-    // console.warn("readlocations called");
     allLocations = [];
     let locations = firebase
       .database()
@@ -84,6 +83,7 @@ export default class Map extends React.Component {
         allLocations.push(oneLocation);
         // console.warn(allLocations);
       });
+
       this.setState({ locations: allLocations }, () => {
         // console.log("show me show me", this.state.locations);
       });

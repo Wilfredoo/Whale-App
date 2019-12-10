@@ -6,7 +6,7 @@ import firebase from "firebase";
 export default class Auth extends React.Component {
   onSignIn = googleUser => {
     // console.warn("this gets called", googleUser);
-    console.log("this gets called", googleUser);
+    // console.log("this gets called", googleUser);
 
     var unsubscribe = firebase.auth().onAuthStateChanged(
       function(firebaseUser) {
@@ -96,7 +96,7 @@ export default class Auth extends React.Component {
       if (result.type === "success") {
         // console.log("success auth", result);
         this.onSignIn(result);
-        this.props.navigation.navigate("Map");
+        this.props.navigation.navigate("Locatione");
         return result.accessToken;
       } else {
         console.log("canceled auth");

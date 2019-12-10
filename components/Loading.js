@@ -8,14 +8,14 @@ class Loading extends Component {
   }
 
   checkIfLoggedIn = () => {
-    // console.log("checking if logged in function called");
+    // console.warn("checking if logged in function called");
     firebase.auth().onAuthStateChanged(user => {
-      // console.log("AUTH STATE CHANGED CALLED ", user);
+      // console.warn("AUTH STATE CHANGED CALLED ", user);
       if (user) {
-        // console.log("there is indeed a user");
+        // console.warn("there is indeed a user");
         this.props.navigation.navigate("Locatione");
       } else {
-        // console.log("go authenticate");
+        // console.warn("go authenticate");
         this.props.navigation.navigate("Auth");
       }
     });

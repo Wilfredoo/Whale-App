@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import React, { Component } from "react";
+import { StyleSheet, Text, View, Image, Button } from "react-native";
 import Auth from "./components/Auth.js";
 import Loading from "./components/Loading.js";
 import Profile from "./components/Profile.js";
@@ -14,40 +14,10 @@ import { createAppContainer } from "react-navigation";
 import firebase from "firebase";
 import { firebaseConfig } from "./config.js";
 import { Ionicons } from "@expo/vector-icons";
+import { createDrawerNavigator } from "react-navigation-drawer";
+import { createSwitchNavigator } from "react-navigation";
 
 firebase.initializeApp(firebaseConfig);
-
-const AppNavigator = createStackNavigator(
-  {
-    Auth: Auth,
-    Loading: Loading,
-    Locatione: Locatione,
-    Map: Map,
-    Contactos: Contactos
-  },
-  {
-    initialRouteName: "Loading"
-  }
-);
-
-const AppContainer = createAppContainer(AppNavigator);
-
-const TabNavigator = createBottomTabNavigator(
-  {
-    Profile: { screen: Profile },
-    Main: { screen: AppContainer },
-    History: { screen: History }
-  },
-  {
-    initialRouteName: "Main"
-  }
-);
-
-// export default function App() {
-//   return <AppContainer />;
-// }
-
-export default createAppContainer(TabNavigator);
 
 const styles = StyleSheet.create({
   container: {
@@ -57,3 +27,37 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   }
 });
+
+class App extends Component {
+  render() {
+    return <AppContainer />;
+  }
+}
+export default App;
+
+const DashboardTabNavigator = createBottomTabNavigator(
+  {
+    Profile,
+    Locatione,
+    History
+  },
+  {
+    navigationOptions: ({ navigation }) => {
+      const { routeName } = navigation.state.routes[navigation.state.index];
+      return {
+        headerTitle: routeName
+      };
+    }
+  }
+);
+const DashboardStackNavigator = createStackNavigator({
+  Auth: Auth,
+  DashboardTabNavigator: DashboardTabNavigator
+});
+
+const AppSwitchNavigator = createSwitchNavigator({
+  Loading: { screen: Loading },
+  Dashboard: { screen: DashboardStackNavigator }
+});
+
+const AppContainer = createAppContainer(AppSwitchNavigator);

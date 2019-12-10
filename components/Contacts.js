@@ -58,7 +58,6 @@ export default class Contactos extends React.Component {
       contacts: []
     };
   }
-
   loadContacts = async () => {
     const permission = await Permissions.askAsync(Permissions.CONTACTS);
 
