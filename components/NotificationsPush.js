@@ -1,28 +1,17 @@
 import React from "react";
-import { Text, View, Button } from "react-native";
+import { View, Button } from "react-native";
 import firebase from "firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 
-export default class Profile extends React.Component {
+export default class NotificationsPush extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   async componentDidMount() {
-    this.currentUser = await firebase.auth().currentUser;
     await this.registerForPushNotificationsAsync();
-    console.warn("user u there in profile", this.currentUser);
-    user = this.currentUser.displayName;
-    this.setState(
-      {
-        user: user
-      },
-      () => {
-        console.log("user display name?", this.state.user);
-      }
-    );
   }
 
   registerForPushNotificationsAsync = async () => {
@@ -61,14 +50,6 @@ export default class Profile extends React.Component {
     }
   };
 
-  // signOut() {
-  //   console.warn("sign her out");
-  //   console.log("sign her out");
-
-  //   firebase.auth().signOut();
-  //   this.props.navigate("Auth");
-  // }
-
   sendPushNotification = () => {
     let response = fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
@@ -89,13 +70,6 @@ export default class Profile extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Hey there {this.state.user}</Text>
-        <Button
-          title="Sign Out"
-          onPress={() => {
-            firebase.auth().signOut();
-          }}
-        />
         <Button
           title="Send push notification"
           onPress={this.sendPushNotification}
