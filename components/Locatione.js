@@ -1,5 +1,14 @@
 import React, { Component } from "react";
-import { Platform, Text, View, Button, Linking, AppState } from "react-native";
+import {
+  Platform,
+  Text,
+  View,
+  Button,
+  Linking,
+  AppState,
+  ActivityIndicator,
+  StyleSheet
+} from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -104,7 +113,20 @@ export default class Locatione extends Component {
       return <Map location={this.state.location} />;
     } else {
       // console.warn("not getting location so gotta wait :(");
-      return <Text>Map will come soon. Or not. Who knows.</Text>;
+      return (
+        <View style={styles.container}>
+          <Text>Map is loading, wait a second</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
     }
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center"
+  }
+});

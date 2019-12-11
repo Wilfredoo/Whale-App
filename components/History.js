@@ -1,7 +1,14 @@
 import React from "react";
-import { Text, View, FlatList, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator
+} from "react-native";
 import firebase from "firebase";
 import { ScrollView } from "react-native-gesture-handler";
+import moment from "moment";
 
 export default class History extends React.Component {
   constructor(props) {
@@ -10,8 +17,14 @@ export default class History extends React.Component {
   }
 
   async componentDidMount() {
+    console.log("i think this is working", moment(1575921697390).fromNow());
+
     this.currentUser = await firebase.auth().currentUser;
     this.readHistory();
+  }
+
+  showHistoryUnit() {
+    console.log("hi whale");
   }
 
   readHistory = () => {
@@ -19,12 +32,13 @@ export default class History extends React.Component {
     let myHistory = firebase
       .database()
       .ref("/locations")
-      .child(this.currentUser.uid);
+      .child(this.currentUser.uid)
+      .orderByChild(created_at)
+      .limitToLast(25);
     myHistory.on("value", snapshot => {
       // console.log("am i getting firebase info at all?", snapshot);
       snapshot.forEach(thing => {
         // console.log("thing", thing.val());
-        // console.log("thing", thing.val().uid);
         oneHistory = [];
         oneHistory.push(
           thing.val().uid,
@@ -39,41 +53,32 @@ export default class History extends React.Component {
         console.log("state pls", this.state.history[0][1]);
       });
       // console.log("gimme all history", allHistory);
-      // console.log("whats this?", this);
     });
   };
 
-  // add a limit to 10
-
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.container}>
         <Text>History of your last sonars</Text>
-        {/* <Text>{this.state.history && this.state.history[0][1]}</Text>
-        <Text>{this.state.history && this.state.history[0][2]}</Text>
-        <Text>{this.state.history && this.state.history[0][3]}</Text>
-        <Text>{this.state.history && this.state.history[0][4]}</Text> */}
-        {/* <FlatList
-          data={this.state.history && this.state.history[0][1]}
-          data={this.state.history && this.state.history[0][2]}
-          data={this.state.history && this.state.history[0][3]}
-          data={this.state.history && this.state.history[0][4]}
-          renderItem={({ item }) => <Text>{item.key}</Text>}
-        /> */}
-
         <ScrollView>
-          {this.state.history &&
+          {this.state.history ? (
             this.state.history.map(data => {
-              console.log("give it to me history", data);
+              // console.log("give it to me history", data);
               return (
-                <View>
-                  <Text>{data[1]}</Text>
-                  <Text>{data[2]}</Text>
-                  <Text>{data[3]}</Text>
-                  <Text>{data[4]}</Text>
+                <View style={styles.historyUnit} onPress={this.showHistoryUnit}>
+                  {/* <Text style={styles.unitText}>{data[1]}</Text>
+                  <Text style={styles.unitText}>{data[2]}</Text> */}
+                  <Text style={styles.unitText}>{data[3]}</Text>
+                  <Text style={styles.unitText}>
+                    {" "}
+                    {moment(data[4]).fromNow()}
+                  </Text>
                 </View>
               );
-            })}
+            })
+          ) : (
+            <ActivityIndicator size="large" color="#0000ff" />
+          )}
         </ScrollView>
       </View>
     );
@@ -83,11 +88,14 @@ export default class History extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22
+    paddingTop: 22,
+    marginLeft: 30
   },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44
+  historyUnit: {
+    marginTop: 15,
+    marginBottom: 15
+  },
+  unitText: {
+    fontSize: 20
   }
 });

@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end"
   },
+
   mapStyle: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height

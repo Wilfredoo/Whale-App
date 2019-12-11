@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, Button } from "react-native";
+import { Text, View, Button, ActivityIndicator } from "react-native";
 import firebase from "firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
@@ -89,17 +89,24 @@ export default class Profile extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Hey there {this.state.user}</Text>
-        <Button
-          title="Sign Out"
-          onPress={() => {
-            firebase.auth().signOut();
-          }}
-        />
-        <Button
-          title="Send push notification"
-          onPress={this.sendPushNotification}
-        />
+        {this.state.user ? (
+          <View>
+            <Text>Hey there {this.state.user}</Text>
+            <Button
+              title="Sign Out"
+              onPress={() => {
+                firebase.auth().signOut();
+              }}
+            />
+            <Button
+              style={{ marginTop: 20 }}
+              title="Send push notification"
+              onPress={this.sendPushNotification}
+            />
+          </View>
+        ) : (
+          <ActivityIndicator size="large" color="#0000ff" />
+        )}
       </View>
     );
   }
