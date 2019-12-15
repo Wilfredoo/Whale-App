@@ -4,8 +4,7 @@ import { Marker } from "react-native-maps";
 import firebase from "firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
-
-// import * as "mapstyle" from "/mapstyle.json"
+import { mapStyle } from "./mapStyle.js";
 
 import {
   Button,
@@ -43,7 +42,7 @@ export default class Map extends React.Component {
     await this.registerForPushNotificationsAsync();
     this.readLocations();
     user = this.currentUser.displayName;
-    console.warn("user u there in Map.js", this.currentUser);
+    // console.warn("user u there in Map.js", this.currentUser);
   }
 
   sendLocation = () => {
@@ -58,7 +57,8 @@ export default class Map extends React.Component {
         user: user,
         latitude: this.props.location.coords.latitude,
         longitude: this.props.location.coords.longitude,
-        created_at: Date.now()
+        created_at: Date.now(),
+        order: -Date.now()
       });
     this.sendPushNotification();
   };
@@ -119,8 +119,8 @@ export default class Map extends React.Component {
     try {
       // Get the token that uniquely identifies this device
       let token = await Notifications.getExpoPushTokenAsync();
-      console.log("make ur dreams come true!", token);
-      console.warn("make ur dreams come true!", token);
+      // console.log("make ur dreams come true!", token);
+      // console.warn("make ur dreams come true!", token);
 
       // POST the token to your backend server from where you can retrieve it to send push notifications.
       firebase
@@ -139,7 +139,6 @@ export default class Map extends React.Component {
         Accept: "application/json",
         "Content-type": "application/json"
       },
-
       body: JSON.stringify({
         to: "ExponentPushToken[RqLTPhIUb5gwoO8ri6l4mq]",
         sound: "default",
@@ -252,323 +251,3 @@ const styles = StyleSheet.create({
     height: 100
   }
 });
-
-let mapStyle = [
-  {
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#1d2c4d"
-      }
-    ]
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#8ec3b9"
-      }
-    ]
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#1a3646"
-      }
-    ]
-  },
-  {
-    featureType: "administrative.country",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#4b6878"
-      }
-    ]
-  },
-  {
-    featureType: "administrative.land_parcel",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "administrative.land_parcel",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#64779e"
-      }
-    ]
-  },
-  {
-    featureType: "administrative.neighborhood",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "administrative.province",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#4b6878"
-      }
-    ]
-  },
-  {
-    featureType: "landscape.man_made",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#334e87"
-      }
-    ]
-  },
-  {
-    featureType: "landscape.natural",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#023e58"
-      }
-    ]
-  },
-  {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#283d6a"
-      }
-    ]
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#6f9ba5"
-      }
-    ]
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#1d2c4d"
-      }
-    ]
-  },
-  {
-    featureType: "poi.business",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry.fill",
-    stylers: [
-      {
-        color: "#023e58"
-      }
-    ]
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#3C7680"
-      }
-    ]
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#304a7d"
-      }
-    ]
-  },
-  {
-    featureType: "road",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#98a5be"
-      }
-    ]
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#1d2c4d"
-      }
-    ]
-  },
-  {
-    featureType: "road.arterial",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#2c6675"
-      }
-    ]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#255763"
-      }
-    ]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#b0d5ce"
-      }
-    ]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#023e58"
-      }
-    ]
-  },
-  {
-    featureType: "road.local",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "transit",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#98a5be"
-      }
-    ]
-  },
-  {
-    featureType: "transit",
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#1d2c4d"
-      }
-    ]
-  },
-  {
-    featureType: "transit.line",
-    elementType: "geometry.fill",
-    stylers: [
-      {
-        color: "#283d6a"
-      }
-    ]
-  },
-  {
-    featureType: "transit.station",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#3a4762"
-      }
-    ]
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#0e1626"
-      }
-    ]
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text",
-    stylers: [
-      {
-        visibility: "off"
-      }
-    ]
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#4e6d70"
-      }
-    ]
-  }
-];

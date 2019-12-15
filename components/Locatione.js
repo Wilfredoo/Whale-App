@@ -58,7 +58,7 @@ export default class Locatione extends Component {
   }
 
   _getLocationAsync = async () => {
-    // console.warn("u even trying nigga?");
+    // console.warn("u even trying?");
     try {
       // console.warn("hopefuly we can get the location");
       let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -78,7 +78,7 @@ export default class Locatione extends Component {
       // console.warn("here the location also", location);
 
       this.setState({ location }, () => {
-        // console.warn("what up in state nigga", this.state);
+        // console.warn("what up in state", this.state);
       });
       // console.warn("log this pls // locatione.js", this.state);
     } catch (error) {
@@ -109,7 +109,6 @@ export default class Locatione extends Component {
       text = JSON.stringify(this.state.location);
     }
     if (this.state.location !== null) {
-      // console.warn("I dont care will return map anyway", this.state.location);
       return <Map location={this.state.location} />;
     } else {
       // console.warn("not getting location so gotta wait :(");

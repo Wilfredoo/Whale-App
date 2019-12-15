@@ -7,8 +7,9 @@ import {
   ActivityIndicator
 } from "react-native";
 import firebase from "firebase";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import moment from "moment";
+import Map from "./Map.js";
 
 export default class History extends React.Component {
   constructor(props) {
@@ -20,12 +21,17 @@ export default class History extends React.Component {
     console.log("i think this is working", moment(1575921697390).fromNow());
 
     this.currentUser = await firebase.auth().currentUser;
-    this.readHistory();
+    await this.readHistory();
   }
 
-  showHistoryUnit() {
-    console.log("hi whale");
-  }
+  // showHistoryUnit(data1, data2) {
+  //   console.log("hi whale", data1, data2);
+  //   console.warn("hi whale", data1, data2);
+  // }
+  showHistoryUnit = (data1, data2) => {
+    console.warn("hi whale", data1, data2);
+    return <Map />;
+  };
 
   readHistory = () => {
     allHistory = [];
@@ -33,7 +39,7 @@ export default class History extends React.Component {
       .database()
       .ref("/locations")
       .child(this.currentUser.uid)
-      .orderByChild(created_at)
+      .orderByChild("order")
       .limitToLast(25);
     myHistory.on("value", snapshot => {
       // console.log("am i getting firebase info at all?", snapshot);
@@ -59,20 +65,25 @@ export default class History extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>History of your last sonars</Text>
+        <Text>History of the last sonars you have received</Text>
         <ScrollView>
           {this.state.history ? (
             this.state.history.map(data => {
               // console.log("give it to me history", data);
               return (
-                <View style={styles.historyUnit} onPress={this.showHistoryUnit}>
-                  {/* <Text style={styles.unitText}>{data[1]}</Text>
+                <View style={styles.historyUnit}>
+                  <TouchableOpacity
+                    onPress={() => this.showHistoryUnit(data[1], data[2])}
+                    // onPress={() => showHistoryUnit(data[1], data[2])}
+                  >
+                    {/* <Text style={styles.unitText}>{data[1]}</Text>
                   <Text style={styles.unitText}>{data[2]}</Text> */}
-                  <Text style={styles.unitText}>{data[3]}</Text>
-                  <Text style={styles.unitText}>
-                    {" "}
-                    {moment(data[4]).fromNow()}
-                  </Text>
+                    <Text style={styles.unitText}>{data[3]}</Text>
+                    <Text style={styles.unitText}>
+                      {" "}
+                      {moment(data[4]).fromNow()}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               );
             })
