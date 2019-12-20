@@ -5,6 +5,8 @@ import firebase from "firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import { mapStyle } from "./mapStyle.js";
+import Modal from "react-native-modals";
+import { AntDesign } from "@expo/vector-icons";
 
 import {
   Button,
@@ -15,9 +17,13 @@ import {
   Dimensions,
   Callout,
   TextInput,
-  StatusBar
+  StatusBar,
+  YellowBox,
+  ActivityIndicator
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+// import { TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native";
+
 let user;
 
 let last12hours = new Date().getTime() - 12 * 3600 * 1000;
@@ -34,15 +40,25 @@ let markers = [
 export default class Map extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      modalVisible: false
+    };
   }
 
   async componentDidMount() {
+    console.log("map opening and her emy props", this.props);
     this.currentUser = await firebase.auth().currentUser;
     await this.registerForPushNotificationsAsync();
     this.readLocations();
     user = this.currentUser.displayName;
     // console.warn("user u there in Map.js", this.currentUser);
+  }
+
+  setModalVisible(visible) {
+    console.log("is this firing?");
+    this.setState({ modalVisible: visible }, () => {
+      console.log(this.state.modalVisible);
+    });
   }
 
   sendLocation = () => {
@@ -61,6 +77,33 @@ export default class Map extends React.Component {
         order: -Date.now()
       });
     this.sendPushNotification();
+  };
+
+  sendLocationFriend = () => {
+    console.log("yes this was fired ye soul");
+  };
+
+  readFriends = () => {
+    allFriends = [];
+    let myFriends = firebase
+      .database()
+      .ref("/users")
+      .orderByChild("first_name");
+    myFriends.on("value", snapshot => {
+      console.log("I should see an object with users here", snapshot);
+      snapshot.forEach(thing => {
+        console.log("thing 1", thing.val().first_name);
+        console.log("thing 2", thing.val().last_name);
+        oneFriend = [];
+        oneFriend.push(thing.val().first_name, thing.val().last_name);
+        console.log("one friend", oneFriend);
+        allFriends.push(oneFriend);
+      });
+      this.setState({ friends: allFriends, modalVisible: true }, () => {
+        console.log("show me show me", this.state.friends[0]);
+      });
+      console.log("all friends", allFriends);
+    });
   };
 
   readLocations = () => {
@@ -93,6 +136,11 @@ export default class Map extends React.Component {
       });
     });
   };
+
+  friendTouched() {
+    console.log("touch me", asd);
+    console.warn("touch me");
+  }
 
   // notification functions here
 
@@ -156,8 +204,8 @@ export default class Map extends React.Component {
           customMapStyle={mapStyle}
           showsUserLocation
           initialRegion={{
-            latitude: 52.52,
-            longitude: 13.41,
+            latitude: this.props.location.coords.latitude,
+            longitude: this.props.location.coords.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421
           }}
@@ -172,7 +220,7 @@ export default class Map extends React.Component {
                 return data[0] === this.currentUser.uid;
               })
               .map(data => {
-                // console.log("give it to me", data);
+                console.log("give it to me", data);
                 return (
                   <Marker
                     coordinate={{
@@ -196,37 +244,57 @@ export default class Map extends React.Component {
             translucent={false}
             networkActivityIndicatorVisible={true}
           />
-          {/* <Marker
-            coordinate={{ latitude: 52.78825, longitude: 13.4324 }}
-            title="This should be me"
-            description="Some description"
-          >
-           
-            <Image
-              source={require("../assets/icon.png")}
-              style={{ width: 40, height: 40 }}
-              resizeMode="contain"
-            />
-          </Marker> */}
         </MapView>
-
         <MapView.Callout>
           <View style={styles.calloutView}>
-            <TouchableOpacity onPress={this.sendLocation}>
+            <TouchableOpacity onPress={this.readFriends}>
               <Image
                 source={require("../assets/button.png")}
                 style={styles.image}
                 resizeMode="contain"
               />
             </TouchableOpacity>
-
-            {/* <Button
-            style={{ marginTop: 46 }}
-            title="Send Sonar"
-            onPress={this.sendLocation}
-          /> */}
           </View>
         </MapView.Callout>
+        <Modal visible={this.state.modalVisible}>
+          <View style={styles.modal}>
+            <TouchableOpacity
+              onPress={() => {
+                this.setModalVisible(!this.state.modalVisible);
+              }}
+            >
+              <AntDesign
+                style={styles.back}
+                name="back"
+                size={50}
+                color="pink"
+              />
+            </TouchableOpacity>
+            <Text>Choose the target for your sonar</Text>
+            <View>
+              {this.state.friends ? (
+                this.state.friends.map(data => {
+                  return (
+                    <View style={styles.friendDiv}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.sendLocationFriend();
+                        }}
+                      >
+                        <Text style={styles.friendText}>
+                          {data[0]}
+                          {data[1]}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })
+              ) : (
+                <ActivityIndicator size="large" color="#0000ff" />
+              )}
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -239,7 +307,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end"
   },
-
   mapStyle: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
@@ -247,7 +314,24 @@ const styles = StyleSheet.create({
   calloutView: {
     marginBottom: "5%"
   },
+  friendDiv: {
+    marginTop: 15,
+    marginBottom: 15
+  },
+
+  friendText: {
+    fontSize: 20
+  },
   image: {
     height: 100
+  },
+  back: {
+    marginTop: 50
+  },
+  modal: {
+    padding: 20,
+    backgroundColor: "yellow",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height
   }
 });

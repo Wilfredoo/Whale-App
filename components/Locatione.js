@@ -70,7 +70,6 @@ export default class Locatione extends Component {
         });
         return;
       }
-      // console.warn("shit down below not running i think", location);
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation
         // enableHighAccuracy: true
@@ -109,6 +108,10 @@ export default class Locatione extends Component {
       text = JSON.stringify(this.state.location);
     }
     if (this.state.location !== null) {
+      // console.log(
+      //   "state location is not null, lets see what it is",
+      //   this.state.location
+      // );
       return <Map location={this.state.location} />;
     } else {
       // console.warn("not getting location so gotta wait :(");

@@ -2,11 +2,14 @@ import React from "react";
 import { StyleSheet, Text, View, Image, Button } from "react-native";
 import * as Google from "expo-google-app-auth";
 import firebase from "firebase";
+import { AntDesign } from "@expo/vector-icons";
+// import { TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class Auth extends React.Component {
   onSignIn = googleUser => {
     // console.warn("this gets called", googleUser);
-    // console.log("this gets called", googleUser);
+    console.log("this gets called", googleUser);
 
     var unsubscribe = firebase.auth().onAuthStateChanged(
       function(firebaseUser) {
@@ -37,7 +40,7 @@ export default class Auth extends React.Component {
                     created_at: Date.now()
                   })
                   .then(() => {
-                    // console.log("got here?");
+                    console.warn("got here?");
                   });
               } else {
                 // console.log("how about here");
@@ -50,7 +53,7 @@ export default class Auth extends React.Component {
               }
             })
             .catch(function(error) {
-              console.log("oh no, errors are happening", error);
+              console.warn("oh no, errors are happening", error);
               var errorCode = error.code;
               var errorMessage = error.message;
               var email = error.email;
@@ -80,9 +83,9 @@ export default class Auth extends React.Component {
   };
 
   signInWithGoogleAsync = async () => {
-    // console.log("sign in before all");
+    console.warn("sign in before all");
     try {
-      // console.log("try me");
+      console.warn("try me");
       const result = await Google.logInAsync({
         androidClientId:
           "353993328565-stdu06g46sji65o8i2ovu5npcga8aj8k.apps.googleusercontent.com",
@@ -90,13 +93,12 @@ export default class Auth extends React.Component {
           "353993328565-cfouoqpnlrkdiefvlig301vglbl523kf.apps.googleusercontent.com",
         scopes: ["profile", "email"]
       });
-      // console.log("omg", result);
-      // console.warn("omg", result);
+      console.warn("omg", result);
 
       if (result.type === "success") {
-        // console.log("success auth", result);
+        console.warn("success auth", result);
         this.onSignIn(result);
-        this.props.navigation.navigate("Locatione");
+        this.props.navigation.navigate("Main");
         return result.accessToken;
       } else {
         console.log("canceled auth");
@@ -104,7 +106,6 @@ export default class Auth extends React.Component {
         return { cancelled: true };
       }
     } catch (e) {
-      console.log("error auth", e);
       console.warn("error auth", e);
 
       return { error: true };
@@ -116,15 +117,21 @@ export default class Auth extends React.Component {
       <View style={styles.container}>
         <Text>Whale App</Text>
         <Image
-          style={{ width: 150, height: 150 }}
-          source={{
-            uri: "./assets/splash.png"
-          }}
+          source={require("../assets/icon.png")}
+          style={styles.whaleIcon}
+          resizeMode="contain"
         />
-        <Button
-          onPress={() => this.signInWithGoogleAsync()}
-          title="Sign Up"
-        ></Button>
+        <TouchableOpacity onPress={() => this.signInWithGoogleAsync()}>
+          <View style={styles.googleButton}>
+            <AntDesign
+              style={styles.googleIcon}
+              name="googleplus"
+              size={35}
+              color="white"
+            />
+            <Text style={styles.googleText}>Looog In with Google</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -136,5 +143,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center"
+  },
+  googleButton: {
+    backgroundColor: "#dd4b39",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginTop: 50
+  },
+  googleIcon: {
+    marginRight: 15
+  },
+  googleText: {
+    fontSize: 20,
+    color: "white",
+    fontFamily: "Roboto"
+  },
+  whaleIcon: {
+    width: 40,
+    height: 40,
+    margin: 20
   }
 });

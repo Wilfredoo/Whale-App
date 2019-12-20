@@ -1,3 +1,5 @@
+
+
 const AppNavigator = createStackNavigator(
   {
     Auth: Auth,

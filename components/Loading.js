@@ -13,7 +13,7 @@ class Loading extends Component {
       // console.warn("AUTH STATE CHANGED CALLED ", user);
       if (user) {
         // console.warn("there is indeed a user");
-        this.props.navigation.navigate("Locatione");
+        this.props.navigation.navigate("Main");
       } else {
         // console.warn("go authenticate");
         this.props.navigation.navigate("Auth");

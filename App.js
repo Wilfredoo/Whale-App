@@ -4,7 +4,7 @@ import Auth from "./components/Auth.js";
 import Loading from "./components/Loading.js";
 import Profile from "./components/Profile.js";
 import History from "./components/History.js";
-import Map from "./components/Map.js";
+
 import Locatione from "./components/Locatione.js";
 import Contactos from "./components/Contacts.js";
 import { createBottomTabNavigator } from "react-navigation-tabs";
@@ -14,7 +14,6 @@ import { createAppContainer } from "react-navigation";
 import firebase from "firebase";
 import { firebaseConfig } from "./config.js";
 import { Ionicons } from "@expo/vector-icons";
-import { createDrawerNavigator } from "react-navigation-drawer";
 import { createSwitchNavigator } from "react-navigation";
 
 firebase.initializeApp(firebaseConfig);
@@ -38,7 +37,8 @@ export default App;
 const DashboardTabNavigator = createBottomTabNavigator(
   {
     Profile,
-    Locatione,
+    Locatione: Locatione,
+    // Main: { screen: Locatione },
     History
   },
   {
@@ -57,7 +57,9 @@ const DashboardStackNavigator = createStackNavigator({
 
 const AppSwitchNavigator = createSwitchNavigator({
   Loading: { screen: Loading },
-  Dashboard: { screen: DashboardStackNavigator }
+  Auth: { screen: Auth },
+
+  Dashboard: { screen: DashboardTabNavigator }
 });
 
 const AppContainer = createAppContainer(AppSwitchNavigator);
