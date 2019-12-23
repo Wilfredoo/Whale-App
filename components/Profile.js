@@ -51,6 +51,11 @@ export default class Profile extends React.Component {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
+          {/* <Header
+  leftComponent={{ icon: 'menu', color: '#fff' }}
+  centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
+  rightComponent={{ icon: 'home', color: '#fff' }}
+/> */}
           {this.state.user ? (
             <View>
               <Text style={styles.welcome}>Hey there {this.state.user}</Text>

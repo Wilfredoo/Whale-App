@@ -8,7 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class Auth extends React.Component {
   onSignIn = googleUser => {
-    // console.warn("this gets called", googleUser);
+    console.warn("this gets called", googleUser);
     console.log("this gets called", googleUser);
 
     var unsubscribe = firebase.auth().onAuthStateChanged(
@@ -132,6 +132,10 @@ export default class Auth extends React.Component {
             <Text style={styles.googleText}>Looog In with Google</Text>
           </View>
         </TouchableOpacity>
+        {/* <Button
+          onPress={() => this.signInWithGoogleAsync()}
+          title="Sign Up"
+        ></Button> */}
       </View>
     );
   }
