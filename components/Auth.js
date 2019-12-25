@@ -37,6 +37,8 @@ export default class Auth extends React.Component {
                     locale: result.additionalUserInfo.profile.locale,
                     first_name: result.additionalUserInfo.profile.given_name,
                     last_name: result.additionalUserInfo.profile.family_name,
+                    uid: result.user.uid,
+
                     created_at: Date.now()
                   })
                   .then(() => {

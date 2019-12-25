@@ -4,20 +4,15 @@ import Auth from "./components/Auth.js";
 import Loading from "./components/Loading.js";
 import Profile from "./components/Profile.js";
 import History from "./components/History.js";
-
 import Locatione from "./components/Locatione.js";
-import Contactos from "./components/Contacts.js";
+import Map from "./components/Map.js";
+
 import { createBottomTabNavigator } from "react-navigation-tabs";
-import Icon from "react-native-vector-icons/Ionicons";
 import { createStackNavigator } from "react-navigation-stack";
 import { createAppContainer } from "react-navigation";
 import firebase from "firebase";
 import { firebaseConfig } from "./config.js";
-import {
-  Ionicons,
-  MaterialIcons,
-  MaterialCommunityIcons
-} from "@expo/vector-icons";
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { createSwitchNavigator } from "react-navigation";
 
 firebase.initializeApp(firebaseConfig);
@@ -47,55 +42,52 @@ const DashboardTabNavigator = createBottomTabNavigator(
         tabBarLabel: "Profile",
         tabBarIcon: ({ tintColor }) => (
           <MaterialCommunityIcons name="fish" size={20} color={tintColor} />
-        )
+        ),
+        tabBarOptions: {
+          activeTintColor: "black",
+          inactiveTintColor: "gray"
+        }
       }
     },
 
     Main: {
-      screen: Locatione,
+      screen: Map,
       navigationOptions: {
         tabBarLabel: "Main",
         tabBarIcon: ({ tintColor }) => (
           <MaterialCommunityIcons name="earth" size={20} color={tintColor} />
-        )
+        ),
+        tabBarOptions: {
+          activeTintColor: "black",
+          inactiveTintColor: "gray"
+        }
       }
     },
     History: {
       screen: History,
+      headerTitle: "aaa",
       navigationOptions: {
         tabBarLabel: "History",
         tabBarIcon: ({ tintColor }) => (
           <MaterialIcons name="history" size={20} color={tintColor} />
-        )
+        ),
+        tabBarOptions: {
+          activeTintColor: "black",
+          inactiveTintColor: "gray"
+        }
       }
     }
   },
   {
-    defaultNavigationOptions: ({ navigation }) => ({
-      tabBarIcon: ({ focused, horizontal, tintColor }) => {
-        const { routeName } = navigation.state;
-        let IconComponent = Ionicons;
-        let iconName;
-        // if (routeName === "Home") {
-        //   iconName = `ios-information-circle${focused ? "" : "-outline"}`;
-        //   // Sometimes we want to add badges to some icons.
-        //   // You can check the implementation below.
-        //   IconComponent = HomeIconWithBadge;
-        // } else if (routeName === "Settings") {
-        //   iconName = `ios-options`;
-        // }
-
-        // You can return any component that you like here!
-        return <IconComponent name={iconName} size={25} color={tintColor} />;
-      }
-    }),
-
-    tabBarOptions: {
-      activeTintColor: "tomato",
-      inactiveTintColor: "gray"
+    navigationOptions: ({ navigation }) => {
+      const { routeName } = navigation.state.routes[navigation.state.index];
+      return {
+        headerTitle: routeName
+      };
     }
   }
 );
+
 const DashboardStackNavigator = createStackNavigator({
   DashboardTabNavigator: DashboardTabNavigator
 });

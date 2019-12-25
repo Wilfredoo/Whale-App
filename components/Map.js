@@ -6,7 +6,7 @@ import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import { mapStyle } from "./mapStyle.js";
 import Modal from "react-native-modals";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import {
   Button,
@@ -46,7 +46,7 @@ export default class Map extends React.Component {
   }
 
   async componentDidMount() {
-    console.log("map opening and her emy props", this.props);
+    // console.log("map opening and her emy props", this.props);
     this.currentUser = await firebase.auth().currentUser;
     await this.registerForPushNotificationsAsync();
     this.readLocations();
@@ -61,28 +61,6 @@ export default class Map extends React.Component {
     });
   }
 
-  sendLocation = () => {
-    console.warn("sending location log", this.props);
-    firebase
-      .database()
-      .ref("/locations")
-      .child(this.currentUser.uid)
-      .child(Date.now())
-      .set({
-        uid: this.currentUser.uid,
-        user: user,
-        latitude: this.props.location.coords.latitude,
-        longitude: this.props.location.coords.longitude,
-        created_at: Date.now(),
-        order: -Date.now()
-      });
-    this.sendPushNotification();
-  };
-
-  sendLocationFriend = () => {
-    console.log("yes this was fired ye soul");
-  };
-
   readFriends = () => {
     allFriends = [];
     let myFriends = firebase
@@ -90,21 +68,99 @@ export default class Map extends React.Component {
       .ref("/users")
       .orderByChild("first_name");
     myFriends.on("value", snapshot => {
-      console.log("I should see an object with users here", snapshot);
+      // console.log("I should see an object with users here", snapshot);
       snapshot.forEach(thing => {
-        console.log("thing 1", thing.val().first_name);
-        console.log("thing 2", thing.val().last_name);
+        // console.log("thing 1", thing.val().first_name);
+        // console.log("thing 2", thing.val().last_name);
         oneFriend = [];
-        oneFriend.push(thing.val().first_name, thing.val().last_name);
-        console.log("one friend", oneFriend);
+        oneFriend.push(
+          thing.val().first_name,
+          thing.val().last_name,
+          thing.val().uid
+        );
+        // console.log("one friend", oneFriend);
         allFriends.push(oneFriend);
       });
       this.setState({ friends: allFriends, modalVisible: true }, () => {
-        console.log("show me show me", this.state.friends[0]);
+        // console.log("show me show me", this.state.friends[0]);
       });
-      console.log("all friends", allFriends);
+      // console.log("all friends", allFriends);
     });
   };
+
+  // sendLocation = targetUser => {
+  //   console.warn("send location called", targetUser);
+  //   console.log("send location called", targetUser);
+
+  //   this.sendLocationFriend(targetUser);
+  //   this.writeReceivedLocation(targetUser);
+  // };
+
+  // sendLocationFriend = targetUser => {
+  //   console.log("sendlocationfriend target user?", targetUser);
+  //   firebase
+  //     .database()
+  //     .ref("/locations")
+  //     .child(this.currentUser.uid)
+  //     .child("Sent")
+  //     .child(Date.now())
+  //     .set({
+  //       uid: this.currentUser.uid,
+  //       user: user,
+  //       targetUser: targetUser,
+  //       latitude: 25,
+  //       longitude: 25,
+  //       type: "sent",
+  //       // latitude: this.props.location.coords.latitude,
+  //       // longitude: this.props.location.coords.longitude,
+  //       created_at: Date.now(),
+  //       order: -Date.now()
+  //     });
+  //   this.sendPushNotification();
+  // };
+
+  sendLocation = targetUser => {
+    console.log("sendlocationfriend target user?", targetUser);
+    firebase
+      .database()
+      .ref("/locations")
+      .child(Date.now())
+      .set({
+        sender: this.currentUser.uid,
+        receiver: targetUser,
+        user: user,
+        latitude: 25,
+        longitude: 25,
+        // latitude: this.props.location.coords.latitude,
+        // longitude: this.props.location.coords.longitude,
+        created_at: Date.now(),
+        order: -Date.now()
+      });
+    this.sendPushNotification();
+  };
+
+  // writeReceivedLocation = targetUser => {
+  //   console.log("target user in received location", targetUser);
+  //   firebase
+  //     .database()
+  //     .ref("/locations")
+  //     .child(targetUser)
+  //     .child("Received")
+  //     .child(Date.now())
+  //     .set({
+  //       uid: this.currentUser.uid,
+  //       user: user,
+  //       targetUser: targetUser,
+  //       latitude: 25,
+  //       longitude: 25,
+  //       type: "received",
+
+  //       // latitude: this.props.location.coords.latitude,
+  //       // longitude: this.props.location.coords.longitude,
+  //       created_at: Date.now(),
+  //       order: -Date.now()
+  //     });
+  // };
 
   readLocations = () => {
     allLocations = [];
@@ -130,7 +186,6 @@ export default class Map extends React.Component {
         allLocations.push(oneLocation);
         // console.warn(allLocations);
       });
-
       this.setState({ locations: allLocations }, () => {
         // console.log("show me show me", this.state.locations);
       });
@@ -204,8 +259,10 @@ export default class Map extends React.Component {
           customMapStyle={mapStyle}
           showsUserLocation
           initialRegion={{
-            latitude: this.props.location.coords.latitude,
-            longitude: this.props.location.coords.longitude,
+            // latitude: this.props.location.coords.latitude,
+            // longitude: this.props.location.coords.longitude,
+            latitude: 25,
+            longitude: 25,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421
           }}
@@ -217,10 +274,11 @@ export default class Map extends React.Component {
               .filter(data => {
                 // console.log("data in filter", data);
                 // console.log("current user uid", this.currentUser.uid);
-                return data[0] === this.currentUser.uid;
+                return data[0] !== this.currentUser.uid;
+                // now I gotta replace this data0 for the one that show the targetUser
               })
               .map(data => {
-                console.log("give it to me", data);
+                // console.log("data in {this.state.locations part}", data);
                 return (
                   <Marker
                     coordinate={{
@@ -248,11 +306,7 @@ export default class Map extends React.Component {
         <MapView.Callout>
           <View style={styles.calloutView}>
             <TouchableOpacity onPress={this.readFriends}>
-              <Image
-                source={require("../assets/button.png")}
-                style={styles.image}
-                resizeMode="contain"
-              />
+              <MaterialCommunityIcons name="radar" size={100} color={"red"} />
             </TouchableOpacity>
           </View>
         </MapView.Callout>
@@ -273,22 +327,32 @@ export default class Map extends React.Component {
             <Text>Choose the target for your sonar</Text>
             <View>
               {this.state.friends ? (
-                this.state.friends.map(data => {
-                  return (
-                    <View style={styles.friendDiv}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          this.sendLocationFriend();
-                        }}
-                      >
-                        <Text style={styles.friendText}>
-                          {data[0]}
-                          {data[1]}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  );
-                })
+                this.state.friends
+                  .filter(data => {
+                    // console.log("friends, data in filter", data);
+                    // console.log("current user uid", this.currentUser.uid);
+                    return data[2] !== this.currentUser.uid;
+                    // now I gotta replace this data0 for the one that show the targetUser
+                  })
+                  .map(data => {
+                    // console.log("which data is the uid?", data);
+                    // console.warn("which data is the uid?", data);
+
+                    return (
+                      <View style={styles.friendDiv}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.sendLocation(data[2]);
+                          }}
+                        >
+                          <Text style={styles.friendText}>
+                            {data[0]}
+                            {data[1]}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })
               ) : (
                 <ActivityIndicator size="large" color="#0000ff" />
               )}

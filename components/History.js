@@ -62,11 +62,11 @@ export default class History extends React.Component {
   }
 
   readHistory = () => {
+    console.log("read sents fired");
     allHistory = [];
     let myHistory = firebase
       .database()
       .ref("/locations")
-      .child(this.currentUser.uid)
       .orderByChild("order")
       .limitToLast(25);
     myHistory.on("value", snapshot => {
@@ -75,7 +75,8 @@ export default class History extends React.Component {
         // console.log("thing", thing.val());
         oneHistory = [];
         oneHistory.push(
-          thing.val().uid,
+          thing.val().sender,
+          thing.val().receiver,
           thing.val().latitude,
           thing.val().longitude,
           thing.val().user,
@@ -90,6 +91,77 @@ export default class History extends React.Component {
     });
   };
 
+  // readHistory = () => {
+  //   console.log("read history fired");
+  //   this.readSentHistory;
+  //   this.readReceivedHistory;
+  // };
+
+  // readSentHistory = () => {
+  //   console.log("read sents fired");
+
+  //   allHistory = [];
+  //   let myHistory = firebase
+  //     .database()
+  //     .ref("/locations")
+  //     .child(this.currentUser.uid)
+  //     .child("Sent")
+  //     .orderByChild("order")
+  //     .limitToLast(25);
+  //   myHistory.on("value", snapshot => {
+  //     // console.log("am i getting firebase info at all?", snapshot);
+  //     snapshot.forEach(thing => {
+  //       // console.log("thing", thing.val());
+  //       oneHistory = [];
+  //       oneHistory.push(
+  //         thing.val().uid,
+  //         thing.val().latitude,
+  //         thing.val().longitude,
+  //         thing.val().user,
+  //         thing.val().created_at,
+  //         thing.val().targetUser
+  //       );
+  //       allHistory.push(oneHistory);
+  //     });
+  //     this.setState({ history: allHistory }, () => {
+  //       console.log("state pls", this.state.history[0][1]);
+  //     });
+  //     // console.log("gimme all history", allHistory);
+  //   });
+  // };
+
+  // readReceivedHistory = () => {
+  //   console.log("read receiveds fired");
+  //   allHistory = [];
+  //   let myHistory = firebase
+  //     .database()
+  //     .ref("/locations")
+  //     .child(this.currentUser.uid)
+  //     .child("Received")
+  //     .orderByChild("order")
+  //     .limitToLast(25);
+  //   myHistory.on("value", snapshot => {
+  //     // console.log("am i getting firebase info at all?", snapshot);
+  //     snapshot.forEach(thing => {
+  //       // console.log("thing", thing.val());
+  //       oneHistory = [];
+  //       oneHistory.push(
+  //         thing.val().uid,
+  //         thing.val().latitude,
+  //         thing.val().longitude,
+  //         thing.val().user,
+  //         thing.val().created_at,
+  //         thing.val().targetUser
+  //       );
+  //       allHistory.push(oneHistory);
+  //     });
+  //     this.setState({ history: allHistory }, () => {
+  //       console.log("state pls", this.state.history[0][1]);
+  //     });
+  //     // console.log("gimme all history", allHistory);
+  //   });
+  // };
+
   render() {
     return (
       <View style={styles.container}>
@@ -100,10 +172,6 @@ export default class History extends React.Component {
               return (
                 <View style={styles.historyUnit}>
                   <TouchableOpacity
-                    // onPress={() => {
-                    //   this.setModalVisible(true);
-                    // }}
-
                     onPress={() => {
                       this.setState(
                         {
