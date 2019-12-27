@@ -63,16 +63,23 @@ export default class History extends React.Component {
 
   readHistory = () => {
     console.log("read sents fired");
+    console.warn("read sents fired");
     allHistory = [];
     let myHistory = firebase
       .database()
       .ref("/locations")
-      .orderByChild("order")
-      .limitToLast(25);
+      .orderByChild("sender_receiver")
+      .equalTo(this.currentUser.uid);
+    // .equalTo("GG99AaPQjMhr0kT1xFkazjHMUrm1");
+
+    // .orderByChild("order")
+    // .limitToLast(25);
     myHistory.on("value", snapshot => {
-      // console.log("am i getting firebase info at all?", snapshot);
+      console.log("am i getting firebase info at all?", snapshot);
+      console.warn("am i getting firebase info at all?", snapshot);
+
       snapshot.forEach(thing => {
-        // console.log("thing", thing.val());
+        console.log("thing", thing.val());
         oneHistory = [];
         oneHistory.push(
           thing.val().sender,
@@ -85,9 +92,11 @@ export default class History extends React.Component {
         allHistory.push(oneHistory);
       });
       this.setState({ history: allHistory }, () => {
-        console.log("state pls", this.state.history[0][1]);
+        console.log("state pls", this.state.history);
+        console.warn("state pls", this.state.history);
       });
-      // console.log("gimme all history", allHistory);
+      console.log("gimme all history", allHistory);
+      console.warn("gimme all history", allHistory);
     });
   };
 
@@ -189,10 +198,12 @@ export default class History extends React.Component {
                       );
                     }}
                   >
-                    <Text style={styles.unitText}>{data[3]}</Text>
+                    <Text style={styles.unitText}>From {data[0]}</Text>
+                    <Text style={styles.unitText}>to {data[1]}</Text>
+
                     <Text style={styles.unitText}>
                       {" "}
-                      {moment(data[4]).fromNow()}
+                      {moment(data[5]).fromNow()}
                     </Text>
                   </TouchableOpacity>
                 </View>

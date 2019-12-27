@@ -61,8 +61,8 @@ export default class NotificationsPush extends React.Component {
       body: JSON.stringify({
         to: "ExponentPushToken[RqLTPhIUb5gwoO8ri6l4mq]",
         sound: "default",
-        title: "Demo",
-        body: "Demo notification"
+        title: "Sonar received",
+        body: "A whale in the neighbourhood has sent you a notification"
       })
     });
   };
