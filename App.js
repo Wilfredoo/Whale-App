@@ -52,6 +52,8 @@ const DashboardTabNavigator = createBottomTabNavigator(
 
     Main: {
       screen: Locatione,
+      // screen: Map,
+
       navigationOptions: {
         tabBarLabel: "Main",
         tabBarIcon: ({ tintColor }) => (

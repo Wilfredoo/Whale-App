@@ -108,7 +108,7 @@ export default class Locatione extends Component {
       text = JSON.stringify(this.state.location);
     }
     if (this.state.location !== null) {
-      // console.log(
+      // console.warn(
       //   "state location is not null, lets see what it is",
       //   this.state.location
       // );

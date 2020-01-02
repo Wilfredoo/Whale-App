@@ -16,7 +16,7 @@ import firebase from "firebase";
 import { ScrollView } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import moment from "moment";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 
 let markers = [
   {
@@ -41,135 +41,52 @@ export default class History extends React.Component {
   }
 
   showHistoryUnit = (data1, data2) => {
-    console.warn("hi whale", data1, data2);
+    // console.warn("hi whale", data1, data2);
     // console.warn("this  still happens");
     this.props.navigation("map2");
     return <Map2 latitude={data1} longitude={data1} />;
   };
 
-  // setModalVisible = visible => {
-  //   console.log("setModalvisible pls");
-  //   this.setState({ modalVisible: visible }, () => {
-  //     console.log("console log is your friend", this.state.modalVisible);
-  //   });
-  // };
-
   setModalVisible(visible) {
-    console.log("is this firing?");
+    // console.log("is this firing?");
     this.setState({ modalVisible: visible }, () => {
       console.log(this.state.modalVisible);
     });
   }
 
   readHistory = () => {
-    console.log("read sents fired");
-    console.warn("read sents fired");
+    // console.warn("read history fired");
     allHistory = [];
     let myHistory = firebase
       .database()
       .ref("/locations")
-      .orderByChild("sender_receiver")
-      .equalTo(this.currentUser.uid);
-    // .equalTo("GG99AaPQjMhr0kT1xFkazjHMUrm1");
-
-    // .orderByChild("order")
-    // .limitToLast(25);
+      .child(this.currentUser.uid)
+      .orderByChild("order")
+      .limitToLast(10);
     myHistory.on("value", snapshot => {
-      console.log("am i getting firebase info at all?", snapshot);
-      console.warn("am i getting firebase info at all?", snapshot);
-
+      // console.log("am i getting firebase info at all?", snapshot);
+      // console.warn("am i getting firebase info at all?", snapshot);
       snapshot.forEach(thing => {
-        console.log("thing", thing.val());
+        // console.log("thing", thing.val());
         oneHistory = [];
         oneHistory.push(
           thing.val().sender,
           thing.val().receiver,
           thing.val().latitude,
           thing.val().longitude,
-          thing.val().user,
-          thing.val().created_at
+          thing.val().created_at,
+          thing.val().type
         );
         allHistory.push(oneHistory);
       });
       this.setState({ history: allHistory }, () => {
-        console.log("state pls", this.state.history);
-        console.warn("state pls", this.state.history);
+        // console.log("state pls", this.state.history);
+        // console.warn("state pls", this.state.history);
       });
-      console.log("gimme all history", allHistory);
-      console.warn("gimme all history", allHistory);
+      // console.log("gimme all history", allHistory);
+      // console.warn("gimme all history", allHistory);
     });
   };
-
-  // readHistory = () => {
-  //   console.log("read history fired");
-  //   this.readSentHistory;
-  //   this.readReceivedHistory;
-  // };
-
-  // readSentHistory = () => {
-  //   console.log("read sents fired");
-
-  //   allHistory = [];
-  //   let myHistory = firebase
-  //     .database()
-  //     .ref("/locations")
-  //     .child(this.currentUser.uid)
-  //     .child("Sent")
-  //     .orderByChild("order")
-  //     .limitToLast(25);
-  //   myHistory.on("value", snapshot => {
-  //     // console.log("am i getting firebase info at all?", snapshot);
-  //     snapshot.forEach(thing => {
-  //       // console.log("thing", thing.val());
-  //       oneHistory = [];
-  //       oneHistory.push(
-  //         thing.val().uid,
-  //         thing.val().latitude,
-  //         thing.val().longitude,
-  //         thing.val().user,
-  //         thing.val().created_at,
-  //         thing.val().targetUser
-  //       );
-  //       allHistory.push(oneHistory);
-  //     });
-  //     this.setState({ history: allHistory }, () => {
-  //       console.log("state pls", this.state.history[0][1]);
-  //     });
-  //     // console.log("gimme all history", allHistory);
-  //   });
-  // };
-
-  // readReceivedHistory = () => {
-  //   console.log("read receiveds fired");
-  //   allHistory = [];
-  //   let myHistory = firebase
-  //     .database()
-  //     .ref("/locations")
-  //     .child(this.currentUser.uid)
-  //     .child("Received")
-  //     .orderByChild("order")
-  //     .limitToLast(25);
-  //   myHistory.on("value", snapshot => {
-  //     // console.log("am i getting firebase info at all?", snapshot);
-  //     snapshot.forEach(thing => {
-  //       // console.log("thing", thing.val());
-  //       oneHistory = [];
-  //       oneHistory.push(
-  //         thing.val().uid,
-  //         thing.val().latitude,
-  //         thing.val().longitude,
-  //         thing.val().user,
-  //         thing.val().created_at,
-  //         thing.val().targetUser
-  //       );
-  //       allHistory.push(oneHistory);
-  //     });
-  //     this.setState({ history: allHistory }, () => {
-  //       console.log("state pls", this.state.history[0][1]);
-  //     });
-  //     // console.log("gimme all history", allHistory);
-  //   });
-  // };
 
   render() {
     return (
@@ -198,12 +115,26 @@ export default class History extends React.Component {
                       );
                     }}
                   >
-                    <Text style={styles.unitText}>From {data[0]}</Text>
-                    <Text style={styles.unitText}>to {data[1]}</Text>
+                    {data[5] === "sender" && (
+                      <View>
+                        <Feather name="arrow-up-right" size={50} color="pink" />
+                        <Text>{data[1]} </Text>
+                      </View>
+                    )}
+
+                    {data[5] === "receiver" && (
+                      <View>
+                        <Feather
+                          name="arrow-down-left"
+                          size={50}
+                          color="pink"
+                        />
+                        <Text>{data[0]}</Text>
+                      </View>
+                    )}
 
                     <Text style={styles.unitText}>
-                      {" "}
-                      {moment(data[5]).fromNow()}
+                      {moment(data[4]).fromNow()}
                     </Text>
                   </TouchableOpacity>
                 </View>
