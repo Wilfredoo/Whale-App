@@ -255,11 +255,11 @@ export default class Map extends React.Component {
     const filteredFriends = this.state.inMemoryFriends.filter(friend => {
       console.warn("friend bfore lowercase", friend);
       let contactLowercase = (friend[0] + " " + friend[1]).toLowerCase();
-      console.warn("contact lowercase", contactLowercase);
+      console.warn("contact lowercase", contactLowercase); // this works?
 
       let searchTermLowercase = value.toLowerCase();
       console.warn("search term lower case", searchTermLowercase);
-      console.warn("const filteredfriends", filteredfriends);
+      console.warn("const filteredfriends", filteredFriends);
 
       return contactLowercase.indexOf(searchTermLowercase) > -1;
     });
