@@ -22,7 +22,7 @@ import {
   ActivityIndicator
 } from "react-native";
 // import { TouchableOpacity } from "react-native-gesture-handler";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 
 let user;
 
@@ -42,16 +42,22 @@ export default class Map extends React.Component {
     super(props);
     this.state = {
       modalVisible: false,
-      locations: null
+      locations: null,
+      fakeModalVisible: false
     };
   }
 
   async componentDidMount() {
     this.currentUser = await firebase.auth().currentUser;
-    await this.registerForPushNotificationsAsync();
-    // console.log("map opening and her emy props", this.props);
     user = this.currentUser.displayName;
+    await this.registerForPushNotificationsAsync();
     await this.readLocations();
+    if (this.state.locations && this.state.locations.length === 0) {
+      this.setState({ fakeModalVisible: true }, () => {
+        console.warn("state of fakemodalvisible", this.state.fakeModalVisible);
+      });
+    }
+    // console.log("map opening and her emy props", this.props);
     // console.warn("anyway I can see this?", this.state);
     // console.warn("user u there in Map.js", this.currentUser);
   }
@@ -100,6 +106,7 @@ export default class Map extends React.Component {
 
   sendLocation = (targetUID, targetFirst, targetLast, userPushToken) => {
     console.warn("send location called", targetUID, targetFirst, targetLast);
+    console.log("send location called", targetUID, targetFirst, targetLast);
     this.writeUnderSender(targetUID, targetFirst, targetLast);
     this.writeUnderReceiver(targetUID, targetFirst, targetLast, userPushToken);
   };
@@ -185,10 +192,10 @@ export default class Map extends React.Component {
       });
 
       this.setState({ locations: allLocations }, () => {
-        // console.warn(
-        //   "show me show me locations in state",
-        //   this.state.locations
-        // );
+        console.warn(
+          "show me show me locations in state",
+          this.state.locations.length
+        );
       });
     });
   };
@@ -251,21 +258,21 @@ export default class Map extends React.Component {
   };
 
   searchContacts = value => {
-    console.warn(this.state.friends, "all friends");
+    // console.warn(this.state.friends, "all friends");
     const filteredFriends = this.state.inMemoryFriends.filter(friend => {
       console.warn("friend bfore lowercase", friend);
       let contactLowercase = (friend[0] + " " + friend[1]).toLowerCase();
-      console.warn("contact lowercase", contactLowercase); // this works?
+      // console.warn("contact lowercase", contactLowercase); // this works?
 
       let searchTermLowercase = value.toLowerCase();
-      console.warn("search term lower case", searchTermLowercase);
-      console.warn("const filteredfriends", filteredFriends);
+      // console.warn("search term lower case", searchTermLowercase);
+      // console.warn("const filteredfriends", filteredFriends);
 
       return contactLowercase.indexOf(searchTermLowercase) > -1;
     });
     this.setState({ friends: filteredFriends }, () => {
-      console.warn("how friend change", this.state.friends);
-      console.warn("how friend change 2", this.state.filteredFriends);
+      // console.warn("how friend change", this.state.friends);
+      // console.warn("how friend change 2", this.state.filteredFriends);
     });
   };
 
@@ -290,7 +297,7 @@ export default class Map extends React.Component {
           {this.state.locations &&
             this.state.locations
               .filter(data => {
-                // console.log("find the sender and filter it", data);
+                console.log("find the sender and filter it", data);
                 return data[3] === "receiver";
               })
               .map(data => {
@@ -321,53 +328,77 @@ export default class Map extends React.Component {
             networkActivityIndicatorVisible={true}
           />
         </MapView>
-        <MapView.Callout>
-          <View style={styles.fakemodal}>
-            <Text>
+        {/* {this.state.locations && console.log(this.state.locations.length, "ay")} */}
+        {this.state.fakeModalVisible && (
+          <MapView.Callout>
+            <View style={styles.fakeModalContainer}>
+              <View style={styles.fakeModalView}>
+                <Text style={styles.fakeModalText}>
+                  Looks like no whale sent you a sonar recently. Maybe make some
+                  whale friends?
+                </Text>
+                <TouchableOpacity
+                  onPress={() => this.setState({ fakeModalVisible: false })}
+                >
+                  <Text>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </MapView.Callout>
+        )}
+        {/* <Modal
+          visible={this.state.fakeModalVisible}
+          style={styles.fakeModalContainer}
+        >
+          <View style={styles.fakeModalView}>
+            <Text style={styles.fakeModalText}>
               Looks like no whale sent you a sonar recently. Maybe make some
               whale friends?
             </Text>
+            <TouchableOpacity
+              onPress={() => this.setState({ fakeModalVisible: false })}
+            >
+              <Text>OK</Text>
+            </TouchableOpacity>
           </View>
-        </MapView.Callout>
+        </Modal> */}
 
         <MapView.Callout>
-          <View style={styles.calloutView}>
-            <TouchableOpacity onPress={this.readFriends}>
-              <MaterialCommunityIcons name="radar" size={100} color={"red"} />
-            </TouchableOpacity>
+          <View style={styles.sonarContainer}>
+            <View style={styles.sonarView}>
+              <TouchableOpacity onPress={this.readFriends}>
+                <MaterialCommunityIcons name="radar" size={100} color={"red"} />
+              </TouchableOpacity>
+            </View>
           </View>
         </MapView.Callout>
         <Modal visible={this.state.modalVisible}>
           <View style={styles.modal}>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({ modalVisible: false }, () => {
-                  // console.log(this.state.modalVisible);
-                });
-              }}
-            >
-              <AntDesign
-                style={styles.back}
-                name="back"
-                size={50}
-                color="pink"
+            <View style={styles.modalFlex}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({ modalVisible: false }, () => {
+                    // console.log(this.state.modalVisible);
+                  });
+                }}
+              >
+                <AntDesign
+                  style={styles.back}
+                  name="leftcircle"
+                  size={50}
+                  color="pink"
+                  Ant
+                />
+              </TouchableOpacity>
+              <TextInput
+                placeholder="Search..."
+                placeholderTextColor="black"
+                style={styles.modalSearch}
+                onChangeText={value => this.searchContacts(value)}
               />
-            </TouchableOpacity>
-            <Text>Choose the target for your sonar</Text>
-            <TextInput
-              placeholder="Search"
-              placeholderTextColor="#dddddd"
-              style={{
-                backgroundColor: "#2f363c",
-                height: 50,
-                fontSize: 36,
-                padding: 10,
-                color: "white",
-                borderBottomWidth: 0.5,
-                borderBottomColor: "#7d90a0"
-              }}
-              onChangeText={value => this.searchContacts(value)}
-            />
+            </View>
+            <Text style={styles.friendsText}>Choose a target</Text>
+
             <View>
               {this.state.friends ? (
                 this.state.friends
@@ -383,7 +414,7 @@ export default class Map extends React.Component {
                     // console.warn("which data is the push token is it 3?", data);
 
                     return (
-                      <View style={styles.friendDiv}>
+                      <View style={styles.friendUnit}>
                         <TouchableOpacity
                           onPress={() => {
                             this.sendLocation(
@@ -394,9 +425,8 @@ export default class Map extends React.Component {
                             );
                           }}
                         >
-                          <Text style={styles.friendText}>
-                            {data[0]}
-                            {data[1]}
+                          <Text style={styles.friendName}>
+                            {data[0]} {data[1]}
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -424,41 +454,73 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
   },
-  calloutView: {
+  sonarContainer: {},
+  sonarView: {
     marginBottom: "5%"
   },
-  friendDiv: {
+  friendUnit: {
     marginTop: 15,
     marginBottom: 15
   },
 
-  friendText: {
-    fontSize: 20
+  friendName: {
+    fontSize: 18,
+    fontWeight: "bold"
   },
   image: {
     height: 100
   },
   back: {
-    marginTop: 50
+    // marginTop: 50
+  },
+
+  modalFlex: {
+    flexDirection: "row",
+    alignItems: "center"
   },
   modal: {
     padding: 20,
-    backgroundColor: "yellow",
+    backgroundColor: "white",
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
   },
-  fakemodal: {
-    // // padding: 20,
-    // backgroundColor: "gray",
-    // opacity: 0.7,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    // width: "80%",
-    // height: "55%"
-    backgroundColor: "gray",
-    padding: 22,
+  fakeModalContainer: {
+    flex: 1,
+    alignItems: "center",
+    // opacity: 0.5,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+
+    justifyContent: "center"
+    // bottom: 200
+  },
+
+  fakeModalView: {
+    width: "80%",
+    // height: "30%",
     justifyContent: "center",
-    // alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: 42,
     borderRadius: 4,
     borderColor: "rgba(0, 0, 0, 0.1)"
+  },
+  fakeModalText: {
+    fontSize: 16,
+    textAlign: "justify",
+    lineHeight: 30,
+    color: "black"
+  },
+  friendText: {
+    fontSize: 14,
+    marginBottom: 20
+  },
+  modalSearch: {
+    // backgroundColor: "#2f363c",
+    height: 50,
+    fontSize: 26,
+    padding: 10,
+    // color: "white",
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#7d90a0"
   }
 });

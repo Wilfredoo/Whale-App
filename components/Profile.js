@@ -14,7 +14,7 @@ export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showEditInput: false,
+      showEditInput: true,
       newName: ""
     };
   }
@@ -28,10 +28,31 @@ export default class Profile extends React.Component {
         user: user
       },
       () => {
-        // console.log("user display name?", this.state.user);
+        console.log("user display name?", this.state.user);
+        console.warn("user display name?", this.state.user);
       }
     );
   }
+
+  saveName = () => {
+    let that = this;
+    let user = firebase.auth().currentUser;
+    user
+      .updateProfile({
+        displayName: this.state.newName
+      })
+      .then(function() {
+        that.setState({ showEditInput: false, user: user.displayName });
+        console.log("great is worked", user);
+      })
+      .catch(function(error) {
+        console.log("oh no error ;;(", error);
+      });
+  };
+
+  editName = () => {
+    this.setState({ showEditInput: true });
+  };
 
   handleChangeText = text => {
     console.log("consoling text, ", text);
@@ -51,11 +72,6 @@ export default class Profile extends React.Component {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          {/* <Header
-  leftComponent={{ icon: 'menu', color: '#fff' }}
-  centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
-  rightComponent={{ icon: 'home', color: '#fff' }}
-/> */}
           {this.state.user ? (
             <View>
               <Text style={styles.welcome}>Hey there {this.state.user}</Text>
@@ -67,11 +83,11 @@ export default class Profile extends React.Component {
                 }}
               />
               <Text style={styles.dots}>...</Text>
-              {/* <Button
+              <Button
                 style={{ marginBottom: 20 }}
                 title="Edit Name"
                 onPress={this.editName}
-              /> */}
+              />
 
               {this.state.showEditInput === true && (
                 <View>

@@ -36,16 +36,12 @@ export default class History extends React.Component {
   }
 
   async componentDidMount() {
+    // console.log("do I have my own location now here?", this.props.location);
+    // console.warn("do I have my own location now here?", this.props.location);
+
     this.currentUser = await firebase.auth().currentUser;
     await this.readHistory();
   }
-
-  showHistoryUnit = (data1, data2) => {
-    // console.warn("hi whale", data1, data2);
-    // console.warn("this  still happens");
-    this.props.navigation("map2");
-    return <Map2 latitude={data1} longitude={data1} />;
-  };
 
   setModalVisible(visible) {
     // console.log("is this firing?");
@@ -61,6 +57,8 @@ export default class History extends React.Component {
       .database()
       .ref("/locations")
       .child(this.currentUser.uid)
+      // .child("arr")
+
       .orderByChild("order")
       .limitToLast(10);
     myHistory.on("value", snapshot => {
@@ -91,7 +89,11 @@ export default class History extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>History of the last sonars you have received</Text>
+        {this.state.history && this.state.history.length === 0 && (
+          <Text style={styles.newUser}>
+            Uh Oh, you must be new in the neighborhood
+          </Text>
+        )}
         <ScrollView>
           {this.state.history ? (
             this.state.history.map(data => {
@@ -102,12 +104,13 @@ export default class History extends React.Component {
                       this.setState(
                         {
                           modalVisible: true,
-                          latitude: data[1],
-                          longitude: data[2]
+                          latitude: data[2],
+                          longitude: data[3]
                         },
                         () => {
                           console.log(
                             "here should be the coords I want",
+                            this.state,
                             this.state.latitude,
                             this.state.longitude
                           );
@@ -117,25 +120,35 @@ export default class History extends React.Component {
                   >
                     {data[5] === "sender" && (
                       <View>
-                        <Feather name="arrow-up-right" size={50} color="pink" />
-                        <Text>{data[1]} </Text>
+                        <Text style={styles.historyName}>{data[1]} </Text>
+                        <View style={styles.historyFlex}>
+                          <Feather
+                            name="arrow-up-right"
+                            size={30}
+                            color="pink"
+                          />
+                          <Text style={styles.historyTime}>
+                            {moment(data[4]).fromNow()}
+                          </Text>
+                        </View>
                       </View>
                     )}
 
                     {data[5] === "receiver" && (
                       <View>
-                        <Feather
-                          name="arrow-down-left"
-                          size={50}
-                          color="pink"
-                        />
-                        <Text>{data[0]}</Text>
+                        <Text style={styles.historyName}>{data[0]}</Text>
+                        <View style={styles.historyFlex}>
+                          <Feather
+                            name="arrow-down-left"
+                            size={30}
+                            color="pink"
+                          />
+                          <Text style={styles.historyTime}>
+                            {moment(data[4]).fromNow()}
+                          </Text>
+                        </View>
                       </View>
                     )}
-
-                    <Text style={styles.unitText}>
-                      {moment(data[4]).fromNow()}
-                    </Text>
                   </TouchableOpacity>
                 </View>
               );
@@ -150,23 +163,28 @@ export default class History extends React.Component {
             customMapStyle={mapStyle}
             showsUserLocation
             initialRegion={{
-              // latitude: this.state.latitude,
-              // longitude: this.state.longitude,
-              latitude: 50,
-              longitude: 13,
+              latitude: this.state.latitude,
+              longitude: this.state.longitude,
+              // latitude: 50,
+              // longitude: 13,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421
             }}
+            // initialRegion={{
+            //   latitude: (this.state.latitude + this.props.latitude) / 2,
+            //   longitude: (this.state.longitude + this.props.longitude) / 2,
+            //   latitudeDelta: 0.0922,
+            //   longitudeDelta: 0.0421
+            // }}
             style={styles.mapStyle}
           >
             <MapView.UrlTile urlTemplate="https://maps.googleapis.com/maps/api/staticmap?key=YOUR_API_KEY&center=52.5281715285354,13.413875306884835&zoom=15&format=png&maptype=roadmap&style=element:geometry%7Ccolor:0x1d2c4d&style=element:labels.text.fill%7Ccolor:0x8ec3b9&style=element:labels.text.stroke%7Ccolor:0x1a3646&style=feature:administrative.country%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:administrative.land_parcel%7Cvisibility:off&style=feature:administrative.land_parcel%7Celement:labels.text.fill%7Ccolor:0x64779e&style=feature:administrative.neighborhood%7Cvisibility:off&style=feature:administrative.province%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:landscape.man_made%7Celement:geometry.stroke%7Ccolor:0x334e87&style=feature:landscape.natural%7Celement:geometry%7Ccolor:0x023e58&style=feature:poi%7Celement:geometry%7Ccolor:0x283d6a&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x6f9ba5&style=feature:poi%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:poi.business%7Cvisibility:off&style=feature:poi.park%7Celement:geometry.fill%7Ccolor:0x023e58&style=feature:poi.park%7Celement:labels.text%7Cvisibility:off&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x3C7680&style=feature:road%7Celement:geometry%7Ccolor:0x304a7d&style=feature:road%7Celement:labels%7Cvisibility:off&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:road%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:road.arterial%7Celement:labels%7Cvisibility:off&style=feature:road.highway%7Celement:geometry%7Ccolor:0x2c6675&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x255763&style=feature:road.highway%7Celement:labels%7Cvisibility:off&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0xb0d5ce&style=feature:road.highway%7Celement:labels.text.stroke%7Ccolor:0x023e58&style=feature:road.local%7Cvisibility:off&style=feature:transit%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:transit%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:transit.line%7Celement:geometry.fill%7Ccolor:0x283d6a&style=feature:transit.station%7Celement:geometry%7Ccolor:0x3a4762&style=feature:water%7Celement:geometry%7Ccolor:0x0e1626&style=feature:water%7Celement:labels.text%7Cvisibility:off&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x4e6d70&size=480x360" />
-
             <Marker
               coordinate={{
-                // latitude: this.state.latitude,
-                // longitude: this.state.longitude
-                latitude: 50,
-                longitude: 13
+                latitude: this.state.latitude,
+                longitude: this.state.longitude
+                // latitude: 50,
+                // longitude: 13
               }}
               title="This should be me"
               description="Some description"
@@ -186,7 +204,7 @@ export default class History extends React.Component {
             >
               <AntDesign
                 style={styles.back}
-                name="back"
+                name="leftcircle"
                 size={50}
                 color="pink"
               />
@@ -206,16 +224,29 @@ const styles = StyleSheet.create({
   },
   historyUnit: {
     marginTop: 15,
-    marginBottom: 15
+    marginBottom: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#7d90a0"
   },
-  unitText: {
-    fontSize: 20
+  historyTime: {
+    fontSize: 15
   },
+  historyName: { fontSize: 18, fontWeight: "bold" },
   back: {
     marginTop: 50
+  },
+
+  historyName: { fontSize: 18 },
+
+  historyFlex: {
+    flexDirection: "row",
+    alignItems: "center"
   },
   mapStyle: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
+  },
+  newUser: {
+    marginTop: 30
   }
 });

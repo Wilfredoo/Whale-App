@@ -15,6 +15,7 @@ import * as Permissions from "expo-permissions";
 import Modal from "react-native-modal";
 import * as IntentLauncher from "expo-intent-launcher";
 import Map from "./Map.js";
+import History from "./History.js";
 
 export default class Locatione extends Component {
   constructor(props) {
@@ -112,6 +113,7 @@ export default class Locatione extends Component {
       //   "state location is not null, lets see what it is",
       //   this.state.location
       // );
+      // <History location={this.state.location} />; // will this work?
       return <Map location={this.state.location} />;
     } else {
       // console.warn("not getting location so gotta wait :(");
