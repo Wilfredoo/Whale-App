@@ -7,12 +7,12 @@ import {
   Linking,
   AppState,
   ActivityIndicator,
+  Modal,
   StyleSheet
 } from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
-import Modal from "react-native-modal";
 import * as IntentLauncher from "expo-intent-launcher";
 import Map from "./Map.js";
 import History from "./History.js";

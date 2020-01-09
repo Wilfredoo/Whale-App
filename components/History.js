@@ -2,9 +2,9 @@ import React from "react";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
 import { mapStyle } from "./mapStyle.js";
-import Modal, { ModalContent } from "react-native-modals";
 import {
   Text,
+  Modal,
   View,
   StyleSheet,
   ActivityIndicator,

@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
   },
   googleText: {
     fontSize: 20,
-    color: "white",
-    fontFamily: "Roboto"
+    color: "white"
+    // fontFamily: "Roboto"
   },
   whaleIcon: {
     width: 40,

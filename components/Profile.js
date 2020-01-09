@@ -14,7 +14,7 @@ export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showEditInput: true,
+      showEditInput: false,
       newName: ""
     };
   }
@@ -35,6 +35,14 @@ export default class Profile extends React.Component {
   }
 
   saveName = () => {
+    firebase
+      .database()
+      .ref("/users/")
+      .child(this.currentUser.uid)
+      .set({
+        first_name: this.state.newName
+      });
+
     let that = this;
     let user = firebase.auth().currentUser;
     user
@@ -49,6 +57,10 @@ export default class Profile extends React.Component {
         console.log("oh no error ;;(", error);
       });
   };
+
+  // saveName2 = () => {
+  //   let userPath = firebase.database().ref('/users').child(this.currentUser.uid).child()
+  // }
 
   editName = () => {
     this.setState({ showEditInput: true });
