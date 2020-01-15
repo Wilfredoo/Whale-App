@@ -77,13 +77,14 @@ export default class Map extends React.Component {
   }
 
   readFriends = () => {
+    console.log("fuck");
     allFriends = [];
     let myFriends = firebase
       .database()
       .ref("/users")
       .orderByChild("first_name");
     myFriends.on("value", snapshot => {
-      // console.log("I should see an object with users here", snapshot);
+      console.log("I should see an object with users here", snapshot);
       snapshot.forEach(thing => {
         // console.log("thing 1", thing.val().first_name);
         // console.log("thing 2", thing.val().last_name);
