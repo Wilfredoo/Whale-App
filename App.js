@@ -6,7 +6,6 @@ import Profile from "./components/Profile.js";
 import History from "./components/History.js";
 import Locatione from "./components/Locatione.js";
 import Map from "./components/Map.js";
-
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import { createStackNavigator } from "react-navigation-stack";
 import { createAppContainer } from "react-navigation";

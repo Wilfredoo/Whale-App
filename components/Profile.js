@@ -21,15 +21,14 @@ export default class Profile extends React.Component {
 
   async componentDidMount() {
     this.currentUser = await firebase.auth().currentUser;
-    // console.warn("user u there in profile", this.currentUser);
     user = this.currentUser.displayName;
     this.setState(
       {
         user: user
       },
       () => {
-        console.log("user display name?", this.state.user);
-        console.warn("user display name?", this.state.user);
+        // console.log("user display name?", this.state.user);
+        // console.warn("user display name?", this.state.user);
       }
     );
   }
@@ -39,8 +38,8 @@ export default class Profile extends React.Component {
       .database()
       .ref("/users/")
       .child(this.currentUser.uid)
-      .set({
-        first_name: this.state.newName
+      .update({
+        name: this.state.newName
       });
 
     let that = this;
@@ -58,22 +57,18 @@ export default class Profile extends React.Component {
       });
   };
 
-  // saveName2 = () => {
-  //   let userPath = firebase.database().ref('/users').child(this.currentUser.uid).child()
-  // }
-
   editName = () => {
     this.setState({ showEditInput: true });
   };
 
   handleChangeText = text => {
-    console.log("consoling text, ", text);
+    // console.log("consoling text, ", text);
     this.setState(
       {
         newName: text
       },
       () => {
-        console.log(this.state.newName);
+        // console.log(this.state.newName);
       }
     );
   };

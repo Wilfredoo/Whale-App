@@ -17,11 +17,6 @@ import * as Permissions from "expo-permissions";
 const uniqueItems = items => [...new Set(items)];
 
 const filterData = contacts => {
-  // Go through each contact
-  // Collect their phone numbers
-  // Normalize the phone numbers
-  // Filter duplicates
-  // return the contacts with unique numbers
   return contacts.map(contact => {
     if (!contact.phoneNumbers) {
       return contact;

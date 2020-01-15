@@ -5,7 +5,6 @@ import firebase from "firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import { mapStyle } from "./mapStyle.js";
-// import Modal from "react-native-modals";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import calculateMaxMinDeltaValues from "../helpers/calculateMaxMinLatLong.js";
 
@@ -23,12 +22,11 @@ import {
   YellowBox,
   ActivityIndicator
 } from "react-native";
-// import { TouchableOpacity } from "react-native-gesture-handler";
 import { TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 
 let user;
 
-let last12hours = new Date().getTime() - 10012 * 3600 * 1000;
+let last12hours = new Date().getTime() - 120000 * 3600 * 1000;
 
 let markers = [
   {
@@ -44,29 +42,30 @@ export default class Map extends React.Component {
     super(props);
     this.state = {
       modalVisible: false,
-      locations: null,
+      locations: ["a"],
       fakeModalVisible: false
     };
     this.state.deltaValues = {
-      latsDiff: -10,
-      longDiff: 70
+      // latsDiff: -10,
+      // longDiff: 70,
+      // deltaLat: 20,
+      // deltaLong: 100
     };
   }
 
   async componentDidMount() {
     this.currentUser = await firebase.auth().currentUser;
     user = this.currentUser.displayName;
-    // console.warn(user, "what is this actually");
     await this.readLocations();
     await this.registerForPushNotificationsAsync();
-    if (this.state.locations && this.state.locations.length === 0) {
+    if (
+      !this.state.locations ||
+      (this.state.locations && this.state.locations.length === 0)
+    ) {
       this.setState({ fakeModalVisible: true }, () => {
         console.warn("state of fakemodalvisible", this.state.fakeModalVisible);
       });
     }
-    // console.log("map opening and her emy props", this.props);
-    // console.warn("anyway I can see this?", this.state);
-    // console.warn("user u there in Map.js", this.currentUser);
   }
 
   setModalVisible(visible) {
@@ -76,18 +75,22 @@ export default class Map extends React.Component {
     });
   }
 
-  readFriends = () => {
+  readUsers = () => {
+    console.warn("wattup");
     allFriends = [];
     let myFriends = firebase
       .database()
       .ref("/users")
+      .child("NXkSDudzoOSfW15oL72LlmxfDTC3")
       .orderByChild("first_name");
     myFriends.on("value", snapshot => {
-      // console.log("I should see an object with users here", snapshot);
+      console.log("I should see an object with users here", snapshot);
+      console.warn("I should see an object with users here", snapshot);
+
       snapshot.forEach(thing => {
         // console.log("thing 1", thing.val().first_name);
         // console.log("thing 2", thing.val().last_name);
-        console.log("can I also acces the user displayname here?", user);
+        // console.log("can I also acces the user displayname here?", user);
 
         oneFriend = [];
         oneFriend.push(
@@ -114,6 +117,8 @@ export default class Map extends React.Component {
     });
   };
 
+  //retrieve all senders and receiver from the user
+
   sendLocation = (
     targetUID,
     targetFirst,
@@ -121,20 +126,6 @@ export default class Map extends React.Component {
     userPushToken,
     targetUsername
   ) => {
-    console.warn(
-      "send location called",
-      targetUID,
-      targetFirst,
-      targetLast,
-      targetUsername
-    );
-    console.log(
-      "send location called",
-      targetUID,
-      targetFirst,
-      targetLast,
-      targetUsername
-    );
     this.writeUnderSender(targetUID, targetFirst, targetLast, targetUsername);
     this.writeUnderReceiver(
       targetUID,
@@ -146,24 +137,15 @@ export default class Map extends React.Component {
   };
 
   writeUnderSender = (targetUID, targetFirst, targetLast, targetUsername) => {
-    console.warn(
-      "write under sender fired",
-      targetUID,
-      targetFirst,
-      targetLast
-    );
     firebase
       .database()
       .ref("/locations")
       .child(this.currentUser.uid)
       .push({
         sender: user,
-        // receiver: targetFirst + " " + targetLast,
         receiver: targetUsername,
         latitude: this.props.location.coords.latitude,
         longitude: this.props.location.coords.longitude,
-        // latitude: 35,
-        // longitude: 139,
         created_at: Date.now(),
         order: -Date.now(),
         type: "sender"
@@ -183,17 +165,11 @@ export default class Map extends React.Component {
       .database()
       .ref("/locations")
       .child(targetUID)
-      // .child(this.currentUser.uid)
-
       .push({
         sender: user,
-        // receiver: targetFirst + " " + targetLast,
         receiver: targetUsername,
-
         latitude: this.props.location.coords.latitude,
         longitude: this.props.location.coords.longitude,
-        // latitude: 35,
-        // longitude: 139,
         created_at: Date.now(),
         order: -Date.now(),
         type: "receiver",
@@ -204,87 +180,79 @@ export default class Map extends React.Component {
   };
 
   readLocations = () => {
+    // console.warn(
+    //   "whats my location?",
+    //   this.props.location.coords.latitude,
+    //   this.props.location.coords.longitude
+    // );
+
     allLocations = [];
-    // try {
+    allLocationsAndMine = [];
+
+    myLocation = [];
+    myLocation.push(
+      this.props.location.coords.latitude,
+      this.props.location.coords.longitude
+    );
+    // console.warn("myLocation 1", myLocation);
     let locations = firebase
       .database()
       .ref("/locations")
       .child(this.currentUser.uid)
-      // .orderByChild("created_at")
-      // .startAt(last12hours);
       .orderByChild("type_order")
       .startAt("receiver" + last12hours)
       .endAt("receiver" + Date.now());
-
-    // } catch (err) {
-    //   console.warn("this guy is a location virgin", err);
-    //   console.warn("this is state locations in the catch", this.state);
-    // }
     locations.on("value", snapshot => {
-      // console.warn("snapshot read locations", snapshot);
       snapshot.forEach(thing => {
-        // console.log("thing");
         oneLocation = [];
         oneLocation.push(
-          // thing.val().uid,
           thing.val().latitude,
           thing.val().longitude,
-          thing.val().sender, //it used to be user before
+          thing.val().sender,
           thing.val().type
         );
         allLocations.push(oneLocation);
-        // console.warn("show me those locations", allLocations);
+        allLocationsAndMine.push(oneLocation);
+        // console.log("all locations here", allLocations);
       });
+      allLocationsAndMine.push(myLocation);
+      // console.warn("all lcs and mine", allLocationsAndMine);
 
-      const deltaValues = calculateMaxMinDeltaValues(allLocations);
-      // console.warn("show me min and max coords", deltaValues);
+      const deltaValues = calculateMaxMinDeltaValues(allLocationsAndMine);
       this.setState(
         { locations: allLocations, deltaValues: deltaValues },
         () => {
-          console.warn(
-            "show me deltas diffs",
-            this.state.deltaValues.latsDiff,
-            this.state.deltaValues.longDiff,
-            this.state.deltaValues.deltaLat,
-            this.state.deltaValues.deltaLong
-          );
+          // console.warn(
+          //   "show me deltas diffs",
+          //   this.state.deltaValues.latsDiff,
+          //   this.state.deltaValues.longDiff,
+          //   this.state.deltaValues.deltaLat,
+          //   this.state.deltaValues.deltaLong
+          // );
         }
       );
     });
   };
-
-  // notification functions here
 
   registerForPushNotificationsAsync = async () => {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
     );
     let finalStatus = existingStatus;
-
-    // only ask if permissions have not already been determined, because
-    // iOS won't necessarily prompt the user a second time.
     if (existingStatus !== "granted") {
-      // Android remote notification permissions are granted during the app
-      // install, so this will only ask on iOS
       const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
       finalStatus = status;
     }
 
-    // Stop here if the user did not grant permissions
     if (finalStatus !== "granted") {
       return;
     }
 
     try {
-      // Get the token that uniquely identifies this device
       let token = await Notifications.getExpoPushTokenAsync();
       this.setState({ userPushToken: token }, () => {
-        // console.warn("is the token here?", this.state.userPushToken);
+        console.warn(".", this.state.userPushToken);
       });
-      // console.log("make ur dreams come true!", token);
-      // console.warn("make ur dreams come true!", token);
-
-      // POST the token to your backend server from where you can retrieve it to send push notifications.
       firebase
         .database()
         .ref("users/" + this.currentUser.uid + "/push_token")
@@ -311,51 +279,39 @@ export default class Map extends React.Component {
   };
 
   searchContacts = value => {
-    // console.warn(this.state.friends, "all friends");
-    const filteredFriends = this.state.inMemoryFriends.filter(friend => {
-      console.warn("friend bfore lowercase", friend);
-      let contactLowercase = (friend[0] + " " + friend[1]).toLowerCase();
-      // console.warn("contact lowercase", contactLowercase); // this works?
-
+    const filteredUsers = this.state.inMemoryUsers.filter(user => {
+      console.warn("user before lowercase", user);
+      let contactLowercase = (user[0] + " " + user[1]).toLowerCase();
       let searchTermLowercase = value.toLowerCase();
-      // console.warn("search term lower case", searchTermLowercase);
-      // console.warn("const filteredfriends", filteredFriends);
-
       return contactLowercase.indexOf(searchTermLowercase) > -1;
     });
-    this.setState({ friends: filteredFriends }, () => {
-      // console.warn("how friend change", this.state.friends);
-      // console.warn("how friend change 2", this.state.filteredFriends);
+    this.setState({ users: filteredUsers }, () => {
+      console.warn(".");
     });
   };
 
   render() {
-    {
-      this.state.deltaValues &&
-        this.state.deltaValues.longDiff &&
-        console.warn("log this bitte", this.state.deltaValues.longDiff); //here the value is defined
-    }
+    // {
+    //   this.state.deltaValues &&
+    //     console.warn("log this bitte", typeof this.state.deltaValues.longDiff);
+    //   console.warn("log this bitte 2", typeof this.state.deltaValues.latsDiff);
+    //   console.warn("type 1", this.state.deltaValues.longDiff);
+    //   console.warn("type 2", this.state.deltaValues.latsDiff);
+    // }
     return (
       <View style={styles.container}>
         {this.state.deltaValues &&
           this.state.deltaValues.longDiff &&
-          this.state.deltaValues.latsDiff && (
+          this.state.deltaValues.latsDiff &&
+          this.state.deltaValues.deltaLat &&
+          this.state.deltaValues.deltaLong && (
             <MapView
               annotations={markers}
               customMapStyle={mapStyle}
               showsUserLocation
               initialRegion={{
-                latitude: this.state.deltaValues.latsDiff, // here the value is undefined
-                longitude: this.state.deltaValues.longDiff, // here the value is undefined
-
-                // latitude: this.props.location.coords.latitude,
-                // longitude: this.props.location.coords.longitude,
-
-                // latitude: 52,
-                // longitude: 13,
-
-                // latitudeDelta: 8.0922,
-                // longitudeDelta: 0.0421
+                latitude: this.state.deltaValues.latsDiff,
+                longitude: this.state.deltaValues.longDiff,
                 latitudeDelta: this.state.deltaValues.deltaLat,
                 longitudeDelta: this.state.deltaValues.deltaLong
               }}
@@ -365,12 +321,9 @@ export default class Map extends React.Component {
               {this.state.locations &&
                 this.state.locations
                   .filter(data => {
-                    // console.log("find the sender and filter it", data);
                     return data[3] === "receiver";
                   })
                   .map(data => {
-                    // console.log("data in {this.state.locations part}", data);
-                    // console.warn("data in {this.state.locations part}", data);
                     return (
                       <Marker
                         coordinate={{
@@ -387,7 +340,6 @@ export default class Map extends React.Component {
                       </Marker>
                     );
                   })}
-
               <StatusBar
                 barStyle="dark-content"
                 hidden={false}
@@ -397,7 +349,7 @@ export default class Map extends React.Component {
               />
             </MapView>
           )}
-        {/* {this.state.locations && console.log(this.state.locations.length, "ay")} */}
+
         {this.state.fakeModalVisible && (
           <MapView.Callout>
             <View style={styles.fakeModalContainer}>
@@ -415,27 +367,11 @@ export default class Map extends React.Component {
             </View>
           </MapView.Callout>
         )}
-        {/* <Modal
-          visible={this.state.fakeModalVisible}
-          style={styles.fakeModalContainer}
-        >
-          <View style={styles.fakeModalView}>
-            <Text style={styles.fakeModalText}>
-              Looks like no whale sent you a sonar recently. Maybe make some
-              whale friends?
-            </Text>
-            <TouchableOpacity
-              onPress={() => this.setState({ fakeModalVisible: false })}
-            >
-              <Text>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal> */}
 
         <MapView.Callout>
           <View style={styles.sonarContainer}>
             <View style={styles.sonarView}>
-              <TouchableOpacity onPress={this.readFriends}>
+              <TouchableOpacity onPress={this.readUsers}>
                 <MaterialCommunityIcons name="radar" size={100} color={"red"} />
               </TouchableOpacity>
             </View>
@@ -446,9 +382,7 @@ export default class Map extends React.Component {
             <View style={styles.modalFlex}>
               <TouchableOpacity
                 onPress={() => {
-                  this.setState({ modalVisible: false }, () => {
-                    // console.log(this.state.modalVisible);
-                  });
+                  this.setState({ modalVisible: false }, () => {});
                 }}
               >
                 <AntDesign
@@ -467,22 +401,15 @@ export default class Map extends React.Component {
               />
             </View>
             <Text style={styles.friendsText}>Choose a target</Text>
-
             <View>
-              {this.state.friends ? (
-                this.state.friends
+              {this.state.users ? (
+                this.state.users
                   .filter(data => {
-                    console.warn(this.state.friends);
-                    // console.log("friends, data in filter", data);
-                    // console.log("current user uid", this.currentUser.uid);
+                    console.warn(this.state.users);
                     return data[2] !== this.currentUser.uid;
-                    // now I gotta replace this data0 for the one that show the targetUser
                   })
                   .map(data => {
-                    // console.log("which data is the uid?", data);
-                    // console.warn("which data is the push token is it 3?", data);
                     console.warn("i want to see that hh here?", data);
-
                     return (
                       <View style={styles.friendUnit}>
                         <TouchableOpacity
@@ -496,9 +423,7 @@ export default class Map extends React.Component {
                             );
                           }}
                         >
-                          <Text style={styles.friendName}>
-                            {data[0]} {data[1]}
-                          </Text>
+                          <Text style={styles.friendName}>{data[4]}</Text>
                         </TouchableOpacity>
                       </View>
                     );
@@ -541,9 +466,7 @@ const styles = StyleSheet.create({
   image: {
     height: 100
   },
-  back: {
-    // marginTop: 50
-  },
+  back: {},
 
   modalFlex: {
     flexDirection: "row",
@@ -558,17 +481,13 @@ const styles = StyleSheet.create({
   fakeModalContainer: {
     flex: 1,
     alignItems: "center",
-    // opacity: 0.5,
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
-
     justifyContent: "center"
-    // bottom: 200
   },
 
   fakeModalView: {
     width: "80%",
-    // height: "30%",
     justifyContent: "center",
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     padding: 42,
@@ -586,11 +505,9 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   modalSearch: {
-    // backgroundColor: "#2f363c",
     height: 50,
     fontSize: 26,
     padding: 10,
-    // color: "white",
     borderBottomWidth: 0.5,
     borderBottomColor: "#7d90a0"
   }

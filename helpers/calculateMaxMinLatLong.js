@@ -1,10 +1,9 @@
 calculateMaxMinDeltaValues = data => {
+  // console.warn("this is being called", data);
   let maxLatitude = -90;
   let minLatitude = 90;
   let maxLongitude = -180;
   let minLongitude = 180;
-  // let latsDiff
-  // let longDiff
 
   data.forEach(element => {
     maxLatitude = Math.max(maxLatitude, element[0]);
@@ -14,9 +13,24 @@ calculateMaxMinDeltaValues = data => {
   });
   let latsDiff = (maxLatitude + minLatitude) / 2;
   let longDiff = (maxLongitude + minLongitude) / 2;
+  let deltaLat = maxLatitude - minLatitude / 1.5;
+  let deltaLong = maxLongitude - minLongitude / 1.5;
 
-  let deltaLat = maxLatitude - minLatitude / 2;
-  let deltaLong = maxLongitude - minLongitude / 2;
+  // console.warn(
+  //   "maxlat, minlat, maxlong, minlong",
+  //   maxLatitude,
+  //   maxLongitude,
+  //   minLatitude,
+  //   minLongitude
+  // );
+
+  // console.warn(
+  //   "all inside calc function",
+  //   latsDiff,
+  //   longDiff,
+  //   deltaLat,
+  //   deltaLong
+  // );
 
   return {
     maxLatitude,

@@ -15,7 +15,6 @@ import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as IntentLauncher from "expo-intent-launcher";
 import Map from "./Map.js";
-import History from "./History.js";
 
 export default class Locatione extends Component {
   constructor(props) {
@@ -29,7 +28,6 @@ export default class Locatione extends Component {
   }
 
   componentDidMount() {
-    // console.warn("are u even triggering?");
     AppState.removeEventListener("change", this.handleAppStateChange);
   }
 
@@ -44,8 +42,6 @@ export default class Locatione extends Component {
   };
 
   componentWillMount() {
-    // console.warn("and how about you u triggering?");
-
     AppState.addEventListener("change", this.handleAppStateChange);
     if (Platform.OS === "android" && !Constants.isDevice) {
       this.setState({
@@ -53,19 +49,14 @@ export default class Locatione extends Component {
           "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
       });
     } else {
-      // console.warn("started from up now we here");
       this._getLocationAsync();
     }
   }
 
   _getLocationAsync = async () => {
-    // console.warn("u even trying?");
     try {
-      // console.warn("hopefuly we can get the location");
       let { status } = await Permissions.askAsync(Permissions.LOCATION);
-      // console.warn("gimme that status", status);
       if (status !== "granted") {
-        // console.warn("I'll just shut down I guess...");
         this.setState({
           errorMessage: "Permission to access location was denied"
         });
@@ -73,14 +64,9 @@ export default class Locatione extends Component {
       }
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation
-        // enableHighAccuracy: true
       });
-      // console.warn("here the location also", location);
 
-      this.setState({ location }, () => {
-        // console.warn("what up in state", this.state);
-      });
-      // console.warn("log this pls // locatione.js", this.state);
+      this.setState({ location }, () => {});
     } catch (error) {
       let status = Location.getProviderStatusAsync();
 
@@ -109,14 +95,8 @@ export default class Locatione extends Component {
       text = JSON.stringify(this.state.location);
     }
     if (this.state.location !== null) {
-      // console.warn(
-      //   "state location is not null, lets see what it is",
-      //   this.state.location
-      // );
-      // <History location={this.state.location} />; // will this work?
       return <Map location={this.state.location} />;
     } else {
-      // console.warn("not getting location so gotta wait :(");
       return (
         <View style={styles.container}>
           <Text>Map is loading, wait a second</Text>

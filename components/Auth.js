@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Image, Button } from "react-native";
 import * as Google from "expo-google-app-auth";
 import firebase from "firebase";
 import { AntDesign } from "@expo/vector-icons";
-// import { TouchableOpacity } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class Auth extends React.Component {
@@ -15,13 +14,9 @@ export default class Auth extends React.Component {
       function(firebaseUser) {
         unsubscribe();
         if (!this.isUserEqual(googleUser, firebaseUser)) {
-          // console.log("his this what is happening?")
-          // Build Firebase credential with the Google ID token.
           var credential = firebase.auth.GoogleAuthProvider.credential(
             googleUser.idToken,
             googleUser.accessToken
-
-            // googleUser.getAuthResponse().user.id
           );
           firebase
             .auth()
@@ -37,6 +32,7 @@ export default class Auth extends React.Component {
                     locale: result.additionalUserInfo.profile.locale,
                     first_name: result.additionalUserInfo.profile.given_name,
                     last_name: result.additionalUserInfo.profile.family_name,
+                    name: result.additionalUserInfo.profile.name,
                     uid: result.user.uid,
 
                     created_at: Date.now()
@@ -45,7 +41,6 @@ export default class Auth extends React.Component {
                     console.warn("got here?");
                   });
               } else {
-                // console.log("how about here");
                 firebase
                   .database()
                   .ref("/users/" + result.user.uid)
@@ -62,7 +57,6 @@ export default class Auth extends React.Component {
               var credential = error.credential;
             });
         } else {
-          // console.log("User already signed-in Firebase.");
         }
       }.bind(this)
     );
@@ -114,7 +108,6 @@ export default class Auth extends React.Component {
     }
   };
   render() {
-    // console.log("trying to render auth");
     return (
       <View style={styles.container}>
         <Text>Whale App</Text>
@@ -134,10 +127,6 @@ export default class Auth extends React.Component {
             <Text style={styles.googleText}>Looog In with Google</Text>
           </View>
         </TouchableOpacity>
-        {/* <Button
-          onPress={() => this.signInWithGoogleAsync()}
-          title="Sign Up"
-        ></Button> */}
       </View>
     );
   }
@@ -165,7 +154,6 @@ const styles = StyleSheet.create({
   googleText: {
     fontSize: 20,
     color: "white"
-    // fontFamily: "Roboto"
   },
   whaleIcon: {
     width: 40,
